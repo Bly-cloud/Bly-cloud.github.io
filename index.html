@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>مواقعي</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;700;800&family=Cairo:wght@400;600;700&display=swap">
+<style>
+:root{
+  --paper:#f4f8fc; --grid:#dbe6f2; --card:#ffffff; --ink:#14213d; --muted:#586583; --line:#cdd9e8;
+  --c1:#0f8660; --c1d:#0a5f44; --c2:#c4560a; --c2d:#8c3c05; --c3:#6d41d6; --c3d:#4a2a9c; --c4:#1769d1; --c4d:#0f4a96;
+  --focus:#14213d;
+  --font-display:'Baloo Bhaijaan 2','Cairo',system-ui,sans-serif;
+  --font-body:'Cairo','Tajawal',system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--paper:#0f1830;--grid:#1a2747;--card:#17233f;--ink:#eef3ff;--muted:#a3b0cc;--line:#2b3b61;--focus:#ffd45a;color-scheme:dark}
+}
+*{box-sizing:border-box}
+html{padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}
+body{
+  margin:0;background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:32px 56px;min-height:100vh;
+}
+.wrap{max-width:900px;margin-inline:auto}
+h1{font:800 clamp(36px,8vw,56px)/1.15 var(--font-display);margin:0 0 8px}
+.lead{margin:0 0 30px;color:var(--muted);max-width:52ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+a.card{
+  display:flex;flex-direction:column;gap:10px;min-width:0;padding:20px;border-radius:24px;text-decoration:none;
+  background:var(--card);color:var(--ink);border:3px solid var(--line);box-shadow:0 7px 0 var(--line);
+  transition:transform .08s,box-shadow .08s;
+}
+a.card:hover{transform:translateY(-2px);box-shadow:0 9px 0 var(--line)}
+a.card:active{transform:translateY(5px);box-shadow:0 2px 0 var(--line)}
+a.card:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.ico{width:64px;height:64px}
+.ttl{font:800 26px/1.2 var(--font-display)}
+.dsc{color:var(--muted);font-size:16px;line-height:1.6}
+.go{margin-top:auto;align-self:flex-start;background:var(--ink);color:var(--paper);border-radius:999px;padding:4px 18px;font:700 16px/1.6 var(--font-body)}
+.empty{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>مواقعي</h1>
+  <p class="lead">مجموعة من الألعاب والمواقع التعليمية. اختر واحداً لتبدأ.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+/* لإضافة موقع جديد: أضف سطراً جديداً هنا، واكتب اسم المجلد كما هو في المستودع. */
+var SITES=[
+  {folder:'math-puzzles',title:'ألغاز الأرقام',desc:'ألغاز جمع وطرح وضرب وقسمة للأطفال بالسحب والإفلات، مع ورشة عدّ بالبالونات والسيارات والمنازل.',icon:'math'}
+];
+function icon(kind,i){
+  var cols=['#0f8660','#c4560a','#6d41d6','#1769d1'];
+  if(kind==='math'){
+    return '<svg class="ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="4" fill="#0f8660"/><rect x="17" y="1" width="14" height="14" rx="4" fill="#c4560a"/><rect x="1" y="17" width="14" height="14" rx="4" fill="#6d41d6"/><rect x="17" y="17" width="14" height="14" rx="4" fill="#1769d1"/><g stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"><path d="M8 4.5v7M4.5 8h7"/><path d="M20.5 8h7"/><path d="M5 21l6 6M11 21l-6 6"/><path d="M20.5 24h7"/></g><circle cx="24" cy="20.5" r="1.4" fill="#fff"/><circle cx="24" cy="27.5" r="1.4" fill="#fff"/></svg>';
+  }
+  return '<svg class="ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="'+cols[i%4]+'"/><path d="M11 16h10M16 11v10" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>';
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var g=document.getElementById('grid');
+if(!SITES.length){g.innerHTML='<p class="empty">لا توجد مواقع بعد.</p>';}
+else g.innerHTML=SITES.map(function(s,i){
+  return '<a class="card" href="'+esc(s.folder)+'/">'+icon(s.icon,i)+'<span class="ttl">'+esc(s.title)+'</span><span class="dsc">'+esc(s.desc)+'</span><span class="go">افتح الموقع</span></a>';
+}).join('');
+</script>
+</body>
+</html>
