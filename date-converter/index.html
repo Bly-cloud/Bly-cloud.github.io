@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10224a">
+<meta name="robots" content="noindex">
+<meta name="description" content="حوّل بين التاريخ الهجري (أم القرى) والميلادي، مع تقويم شهري، وأسماء الأشهر بالعربي والإنجليزي، وحساب العمر والفرق بين تاريخين، والمناسبات.">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<title>محوّل التاريخ الهجري والميلادي</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap">
+<style>
+@font-face{font-family:'MajallaLocal';src:local('Sakkal Majalla'),local('SakkalMajalla'),local('Majalla');size-adjust:118%}
+/* Layout: navy header band with today's date in both calendars, tabs for six tools, one working card and its result below */
+:root{
+  color-scheme:light;
+  --bg:#e7eaef; --card:#f8f9fb; --soft:#eef1f6; --ink:#0f1e3d; --muted:#586379; --line:#d1d7e0;
+  --band-a:#0e1d40; --band-b:#1c3566; --band-ink:#f4f6fa; --band-muted:#b6c1d8;
+  --sel-bg:#10224a; --sel-fg:#f4f6fa; --accent:#1c3566; --accent-t:#dfe5f0;
+  --gold:#a8741a; --gold-t:#f6ecd8; --down:#b8382f; --down-t:#f8e4e2;
+  --focus:#10224a; --shadow:0 1px 2px rgba(16,34,74,.08),0 10px 26px rgba(16,34,74,.08);
+  --font:'MajallaLocal','Sakkal Majalla','Noto Naskh Arabic','Amiri',serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c121e; --card:#151e32; --soft:#0f1729; --ink:#e8ecf4; --muted:#9aa5ba; --line:#25304a;
+    --band-a:#101c3a; --band-b:#1a2d57;
+    --sel-bg:#dde4f3; --sel-fg:#0c121e; --accent:#a9c0ff; --accent-t:#1d2a48;
+    --gold:#e8be6a; --gold-t:#33291a; --down:#ff8a80; --down-t:#3a1d22;
+    --focus:#a9c0ff; --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.3); color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:19px;line-height:1.7;padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));min-height:100vh}
+button,input,select{font-family:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.in{max-width:960px;margin-inline:auto}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.band{background:linear-gradient(160deg,var(--band-a),var(--band-b));color:var(--band-ink);padding-top:calc(28px + env(safe-area-inset-top,0px));padding-bottom:24px}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 16px}
+.brand{display:flex;align-items:center;gap:12px;font:700 clamp(26px,5.6vw,38px)/1.35 var(--font);margin:0}
+.brand svg{flex:none}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid rgba(244,246,250,.4);color:var(--band-ink);border-radius:999px;padding:4px 16px;font:600 16px/1.3 var(--font);min-height:44px}
+.chip:hover{background:rgba(244,246,250,.12)}
+.chip select{border:0;background:transparent;color:inherit;font:700 16px var(--font);padding:0 2px}
+.chip select option{color:#10224a;background:#fff}
+.chip:focus-visible,.chip select:focus-visible{outline-color:#f4f6fa}
+.today{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+.tp{background:rgba(244,246,250,.1);border:1px solid rgba(244,246,250,.22);border-radius:14px;padding:6px 14px;min-width:0}
+.tp small{display:block;color:var(--band-muted);font-size:15px;line-height:1.4}
+.tp b{font-weight:700;font-size:20px}
+
+main{padding-top:22px}
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
+.tab{padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:600 18px/1.4 var(--font);min-height:48px;min-width:0;box-shadow:var(--shadow)}
+.tab[aria-selected="true"]{background:var(--sel-bg);color:var(--sel-fg);border-color:var(--sel-bg)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;min-width:0;margin-bottom:18px}
+.card h2{margin:0;font:700 22px/1.4 var(--font)}
+.flbl{font:600 18px/1.4 var(--font);color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{flex:1 1 180px;border:1.5px solid var(--line);background:var(--soft);color:var(--ink);border-radius:14px;padding:8px 12px;font:600 18px/1.4 var(--font);min-height:48px}
+.seg button[aria-pressed="true"]{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.dp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sel,.num{border:1.5px solid var(--line);border-radius:14px;background:var(--soft);color:var(--ink);font:600 20px/1.4 var(--font);padding:6px 10px;min-height:52px;min-width:0}
+.num{direction:ltr;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.sel:focus,.num:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-t)}
+.dp .dcal{flex:0 0 7.5em}
+.dp [data-f="d"]{flex:0 0 5em}
+.dp [data-f="m"]{flex:1 1 10em}
+.dp [data-f="y"]{flex:0 0 6.5em;width:6.5em}
+.suf{color:var(--muted);font-weight:700}
+.num.bad{border-color:var(--down);background:var(--down-t)}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{padding:6px 18px;border-radius:999px;font:700 17px/1.4 var(--font);border:1.5px solid var(--line);background:var(--card);color:var(--ink);min-height:44px}
+.btn.pri{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.btn:disabled{opacity:.4;cursor:default}
+
+.res{display:flex;flex-direction:column;gap:6px}
+.big{font:700 clamp(26px,6vw,38px)/1.5 var(--font);color:var(--accent);text-wrap:balance}
+.en{direction:ltr;text-align:right;color:var(--muted);font-size:18px;font-family:system-ui,sans-serif}
+.note{margin:0;font-size:16px;color:var(--gold);background:var(--gold-t);border-radius:12px;padding:6px 12px}
+.err{margin:0;font:700 20px/1.7 var(--font);color:var(--down)}
+.rows{margin:0}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:8px 2px;border-top:1px solid var(--line);flex-wrap:wrap}
+.rows dt{color:var(--muted);font-weight:600}
+.rows dd{margin:0;font-weight:700;text-align:end;min-width:0;overflow-wrap:anywhere}
+.rows dd.ltr{direction:ltr;font-family:system-ui,sans-serif;font-weight:600;font-size:17px}
+.mains{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.main{background:var(--accent-t);border-radius:16px;padding:10px 14px}
+.main small{display:block;color:var(--muted);font-weight:600;font-size:16px}
+.main b{font-size:24px;line-height:1.5;color:var(--accent)}
+
+.calh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.calt{font:700 24px/1.4 var(--font)}
+.cals{color:var(--muted);font-size:17px}
+.nav{display:flex;gap:8px}
+.nav .btn{min-width:48px}
+.g7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.wh{text-align:center;color:var(--muted);font:600 15px/1.4 var(--font);padding:2px 0}
+.cell{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:58px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--ink);padding:2px;min-width:0}
+.cell .p{font:700 21px/1.2 var(--font)}
+.cell .s{font-size:12px;line-height:1.3;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell.fri{background:var(--card)}
+.cell.now{border:2px solid var(--gold)}
+.cell[aria-pressed="true"]{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.cell[aria-pressed="true"] .s{color:var(--sel-fg);opacity:.8}
+.blank{min-height:58px}
+
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:18px}
+th,td{padding:8px 12px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--soft);color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+td.en2{direction:ltr;text-align:right;font-family:system-ui,sans-serif;font-size:16px}
+td.n{font-variant-numeric:tabular-nums}
+.yr{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.yr .num{width:7em}
+
+.occ{display:flex;flex-direction:column;gap:10px}
+.oc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;background:var(--soft);border-radius:14px;padding:10px 14px}
+.oc b{font-size:20px}
+.oc .d{grid-column:1;color:var(--muted);font-size:17px}
+.oc .c{grid-row:1/3;grid-column:2;background:var(--sel-bg);color:var(--sel-fg);border-radius:999px;padding:4px 14px;font-weight:700;font-size:17px;white-space:nowrap}
+.oc .c.soon{background:var(--gold);color:#fff}
+.toast{position:fixed;left:0;right:0;bottom:calc(20px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:fit-content;max-width:calc(100% - 32px);background:var(--sel-bg);color:var(--sel-fg);border-radius:999px;padding:8px 22px;font:700 18px/1.5 var(--font);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+.toast.on{opacity:1}
+@media (max-width:520px){.cell{min-height:52px}.cell .p{font-size:19px}.cell .s{font-size:11px}.oc{grid-template-columns:minmax(0,1fr)}.oc .c{grid-row:auto;grid-column:1;justify-self:start}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="band pad">
+  <div class="in">
+    <div class="top">
+      <h1 class="brand">
+        <svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="1" y="1" width="46" height="46" rx="13" fill="#f4f6fa" fill-opacity=".14" stroke="#f4f6fa" stroke-opacity=".35"/>
+          <path d="M28 11a13 13 0 1 0 9 22 11 11 0 1 1-9-22z" fill="#f4f6fa"/>
+          <path d="M34 13l1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2 3-1.2z" fill="#f2c46d"/>
+        </svg>
+        <span>محوّل التاريخ</span>
+      </h1>
+      <div class="tools">
+        <button class="chip" id="btnDig" type="button"></button>
+        <label class="chip" for="selAdj">تعديل الرؤية
+          <select id="selAdj">
+            <option value="-2">−2 يوم</option><option value="-1">−1 يوم</option><option value="0">بلا تعديل</option><option value="1">+1 يوم</option><option value="2">+2 يوم</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="today" id="today"></div>
+  </div>
+</header>
+
+<main class="pad">
+  <div class="in">
+    <nav class="tabs" id="tabs" role="tablist" aria-label="الأقسام"></nav>
+    <div id="panel"></div>
+  </div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='date-converter-settings', DIG='٠١٢٣٤٥٦٧٨٩', DAY=864e5;
+var HM_AR=['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
+var HM_EN=['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Ula','Jumada al-Akhirah','Rajab','Shaban','Ramadan','Shawwal','Dhu al-Qadah','Dhu al-Hijjah'];
+var GM_AR=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+var GM_SY=['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
+var GM_EN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var WD_AR=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+var WD_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var WD_SH=['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+var HY=[1300,1600], GY=[1883,2173];
+var TABS=[['conv','التحويل'],['cal','التقويم الشهري'],['months','الأشهر والأيام'],['diff','الفرق والعمر'],['add','إضافة أيام'],['occ','المناسبات']];
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function B(x){return '⁦'+x+'⁩';}
+function p2(n){return (n<10?'0':'')+n;}
+
+/* ---------- calendar engine ---------- */
+var FMT=null,UQ=false,HC=new Map(),H2C=new Map();
+try{
+  FMT=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{timeZone:'UTC',year:'numeric',month:'numeric',day:'numeric'});
+  UQ=FMT.resolvedOptions().calendar==='islamic-umalqura';
+  if(!UQ)FMT=null;
+}catch(e){FMT=null;}
+function tabular(dn){
+  var jd=dn+2440588,l=jd-1948440+10632,n=Math.floor((l-1)/10631);
+  l=l-10631*n+354;
+  var j=Math.floor((10985-l)/5316)*Math.floor((50*l)/17719)+Math.floor(l/5670)*Math.floor((43*l)/15238);
+  l=l-Math.floor((30-j)/15)*Math.floor((17719*j)/50)-Math.floor(j/16)*Math.floor((15238*j)/43)+29;
+  var m=Math.floor((24*l)/709),d=l-Math.floor((709*m)/24);
+  return {y:30*n+j-30,m:m,d:d};
+}
+function rawH(dn){
+  var c=HC.get(dn);if(c)return c;
+  var r;
+  if(FMT){var o={};FMT.formatToParts(new Date(dn*DAY)).forEach(function(p){o[p.type]=p.value;});r={y:parseInt(o.year,10),m:parseInt(o.month,10),d:parseInt(o.day,10)};}
+  else r=tabular(dn);
+  HC.set(dn,r);return r;
+}
+function rawH2dn(y,m,d){
+  var k=y*1000+m*40+d,c=H2C.get(k);if(c!==undefined)return c;
+  var dn=Math.round(-492148+(y-1)*354.36667+(m-1)*29.5306+d-1),res=null;
+  for(var i=0;i<30;i++){
+    var h=rawH(dn);
+    if(h.y===y&&h.m===m&&h.d===d){res=dn;break;}
+    var diff=(y-h.y)*354.36667+(m-h.m)*29.5306+(d-h.d),st=Math.round(diff);
+    if(st===0)st=diff>0?1:-1;
+    dn+=st;
+  }
+  H2C.set(k,res);return res;
+}
+function hMonthLen(y,m){var a=rawH2dn(y,m,1),b=rawH2dn(m===12?y+1:y,m===12?1:m+1,1);return (a==null||b==null)?30:b-a;}
+function gMonthLen(y,m){return new Date(Date.UTC(y,m,0)).getUTCDate();}
+function hOf(dn){return rawH(dn+S.adj);}
+function dnOfH(y,m,d){var r=rawH2dn(y,m,d);return r==null?null:r-S.adj;}
+function gOf(dn){var t=new Date(dn*DAY);return {y:t.getUTCFullYear(),m:t.getUTCMonth()+1,d:t.getUTCDate()};}
+function dnOfG(y,m,d){var t=new Date(Date.UTC(2000,m-1,d));t.setUTCFullYear(y);return Math.round(t.getTime()/DAY);}
+function wd(dn){return ((dn+4)%7+7)%7;}
+function today(){var t=new Date();return dnOfG(t.getFullYear(),t.getMonth()+1,t.getDate());}
+
+/* ---------- state ---------- */
+var S={tab:'conv',digits:'en',adj:0,dir:'g2h',calBase:'h',p:{},cal:{y:0,m:0,sel:null},mo:{hy:'',gy:''},add:{n:'90',sign:1}};
+var LAST='';
+function load(){
+  try{
+    var o=JSON.parse(localStorage.getItem(KEY)||'null');if(!o)return;
+    if(o.digits==='ar'||o.digits==='en')S.digits=o.digits;
+    if([-2,-1,0,1,2].indexOf(o.adj)>=0)S.adj=o.adj;
+    if(TABS.some(function(t){return t[0]===o.tab;}))S.tab=o.tab;
+    if(o.dir==='g2h'||o.dir==='h2g')S.dir=o.dir;
+    if(o.calBase==='h'||o.calBase==='g')S.calBase=o.calBase;
+  }catch(e){}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({digits:S.digits,adj:S.adj,tab:S.tab,dir:S.dir,calBase:S.calBase}));}catch(e){}}
+
+/* ---------- text helpers ---------- */
+function dz(s){s=String(s);return S.digits==='ar'?s.replace(/\d/g,function(d){return DIG[+d];}):s;}
+function normDigits(s){return String(s).replace(/[٠-٩]/g,function(c){return c.charCodeAt(0)-1632;}).replace(/[۰-۹]/g,function(c){return c.charCodeAt(0)-1776;}).trim();}
+function hTxt(dn){var h=hOf(dn);return WD_AR[wd(dn)]+' '+dz(h.d)+' '+HM_AR[h.m-1]+' '+dz(h.y)+' هـ';}
+function gTxt(dn){var g=gOf(dn);return WD_AR[wd(dn)]+' '+dz(g.d)+' '+GM_AR[g.m-1]+' '+dz(g.y)+' م';}
+function hEn(dn){var h=hOf(dn);return WD_EN[wd(dn)]+', '+h.d+' '+HM_EN[h.m-1]+' '+h.y+' AH';}
+function gEn(dn){var g=gOf(dn);return WD_EN[wd(dn)]+', '+g.d+' '+GM_EN[g.m-1]+' '+g.y;}
+function hNum(dn){var h=hOf(dn);return dz(h.y+'/'+p2(h.m)+'/'+p2(h.d));}
+function gNum(dn){var g=gOf(dn);return dz(p2(g.d)+'/'+p2(g.m)+'/'+g.y);}
+function iso(dn){var g=gOf(dn);return g.y+'-'+p2(g.m)+'-'+p2(g.d);}
+function hShort(dn){var h=hOf(dn);return dz(h.d)+' '+HM_AR[h.m-1]+' '+dz(h.y);}
+function gShort(dn){var g=gOf(dn);return dz(g.d)+' '+GM_AR[g.m-1]+' '+dz(g.y);}
+function cnt(n,w){ /* w: [one, two, few, many] */
+  if(n===1)return w[0];if(n===2)return w[1];
+  var k=n%100;return dz(n)+' '+((k>=3&&k<=10)?w[2]:w[3]);
+}
+var W_Y=['سنة واحدة','سنتان','سنوات','سنة'],W_M=['شهر واحد','شهران','أشهر','شهراً'],W_D=['يوم واحد','يومان','أيام','يوماً'],W_W=['أسبوع واحد','أسبوعان','أسابيع','أسبوعاً'];
+function rel(n){
+  if(n===0)return 'اليوم';if(n===1)return 'غداً';if(n===-1)return 'أمس';
+  var a=Math.abs(n),t=a===2?'يومين':cnt(a,W_D);
+  return (n>0?'بعد ':'قبل ')+t;
+}
+function ymdTxt(o){
+  var p=[];
+  if(o.y)p.push(cnt(o.y,W_Y));if(o.m)p.push(cnt(o.m,W_M));if(o.d)p.push(cnt(o.d,W_D));
+  return p.length?p.join(' و'):'لا فرق';
+}
+
+/* ---------- pickers ---------- */
+function setP(id,dn,cal){var x=cal==='h'?hOf(dn):gOf(dn);S.p[id]={cal:cal,y:String(x.y),m:x.m,d:x.d};}
+function readP(id){
+  var p=S.p[id],h=p.cal==='h',y=parseInt(normDigits(p.y),10),R=h?HY:GY;
+  if(!/^\d+$/.test(normDigits(p.y))||isNaN(y))return {err:'اكتب السنة بالأرقام.'};
+  if(y<R[0]||y>R[1])return {err:'السنة خارج النطاق المدعوم: من '+dz(R[0])+' إلى '+dz(R[1])+(h?' هـ.':' م.')};
+  var len=h?hMonthLen(y,p.m):gMonthLen(y,p.m);
+  if(p.d>len)return {err:'شهر '+(h?HM_AR:GM_AR)[p.m-1]+' سنة '+dz(y)+' فيه '+cnt(len,W_D)+' فقط.'};
+  var dn=h?dnOfH(y,p.m,p.d):dnOfG(y,p.m,p.d);
+  if(dn==null)return {err:'تعذّر حساب هذا التاريخ.'};
+  return {dn:dn};
+}
+function pickerHTML(id,calSel){
+  var p=S.p[id],h=p.cal==='h',names=h?HM_AR:GM_AR,maxD=h?30:31,o='<div class="dp" data-p="'+id+'">',i;
+  if(calSel)o+='<select class="sel dcal" data-f="cal" aria-label="نوع التقويم"><option value="g"'+(h?'':' selected')+'>ميلادي</option><option value="h"'+(h?' selected':'')+'>هجري</option></select>';
+  o+='<select class="sel" data-f="d" aria-label="اليوم">';
+  for(i=1;i<=maxD;i++)o+='<option value="'+i+'"'+(p.d===i?' selected':'')+'>'+dz(i)+'</option>';
+  o+='</select><select class="sel" data-f="m" aria-label="الشهر">';
+  for(i=1;i<=12;i++)o+='<option value="'+i+'"'+(p.m===i?' selected':'')+'>'+dz(i)+' - '+names[i-1]+'</option>';
+  o+='</select><input class="num" data-f="y" type="text" inputmode="numeric" autocomplete="off" dir="ltr" value="'+esc(p.y)+'" aria-label="السنة"><span class="suf">'+(h?'هـ':'م')+'</span></div>';
+  return o;
+}
+
+/* ---------- chrome ---------- */
+function renderChrome(){
+  $('btnDig').textContent='الأرقام: '+(S.digits==='ar'?'٣ ٢ ١':'1 2 3');
+  $('selAdj').value=String(S.adj);
+  var t=today();
+  $('today').innerHTML='<div class="tp"><small>اليوم بالهجري'+(S.adj?' (معدّل '+B(dz((S.adj>0?'+':'−')+Math.abs(S.adj)))+')':'')+'</small><b>'+hTxt(t)+'</b></div><div class="tp"><small>اليوم بالميلادي</small><b>'+gTxt(t)+'</b></div>';
+}
+function renderTabs(){
+  $('tabs').innerHTML=TABS.map(function(t){return '<button class="tab" type="button" role="tab" data-t="'+t[0]+'" aria-selected="'+(t[0]===S.tab)+'">'+t[1]+'</button>';}).join('');
+}
+function adjNote(){return S.adj?'<p class="note">التاريخ الهجري معدّل حسب الرؤية بمقدار '+B(dz((S.adj>0?'+':'−')+Math.abs(S.adj)))+' يوم عن تقويم أم القرى.</p>':'';}
+function errBox(m){return '<div class="card"><p class="err" role="alert">'+m+'</p></div>';}
+function rowsHTML(r){return '<dl class="rows">'+r.map(function(x){return '<div><dt>'+x[0]+'</dt><dd'+(x[2]?' class="ltr"':'')+'>'+x[1]+'</dd></div>';}).join('')+'</dl>';}
+
+/* ---------- tabs ---------- */
+function renderTab(){
+  var h='';
+  if(S.tab==='conv'){
+    var g2h=S.dir==='g2h';
+    h='<section class="card"><div class="seg" role="group" aria-label="اتجاه التحويل"><button type="button" data-act="dir" data-v="g2h" aria-pressed="'+g2h+'">من ميلادي إلى هجري</button><button type="button" data-act="dir" data-v="h2g" aria-pressed="'+(!g2h)+'">من هجري إلى ميلادي</button></div>'+
+      '<span class="flbl">'+(g2h?'التاريخ الميلادي':'التاريخ الهجري')+'</span>'+pickerHTML('cv',false)+
+      '<div class="btns"><button class="btn" type="button" data-act="today" data-p="cv">اليوم</button><button class="btn" type="button" data-act="swap">عكس الاتجاه</button></div></section><div id="out"></div>';
+  }else if(S.tab==='cal'){
+    h='<div id="out"></div>';
+  }else if(S.tab==='months'){
+    h='<section class="card"><div class="yr"><label class="flbl" for="mhy">السنة الهجرية</label><input class="num" id="mhy" type="text" inputmode="numeric" dir="ltr" value="'+esc(S.mo.hy)+'"><label class="flbl" for="mgy">السنة الميلادية</label><input class="num" id="mgy" type="text" inputmode="numeric" dir="ltr" value="'+esc(S.mo.gy)+'"></div></section><div id="out"></div>';
+  }else if(S.tab==='diff'){
+    h='<section class="card"><span class="flbl">من تاريخ (مثل تاريخ الميلاد)</span>'+pickerHTML('da',true)+'<span class="flbl">إلى تاريخ</span>'+pickerHTML('db',true)+
+      '<div class="btns"><button class="btn" type="button" data-act="today" data-p="db">حتى اليوم</button></div></section><div id="out"></div>';
+  }else if(S.tab==='add'){
+    h='<section class="card"><span class="flbl">من تاريخ</span>'+pickerHTML('ad',true)+
+      '<div class="seg" role="group" aria-label="الاتجاه"><button type="button" data-act="sign" data-v="1" aria-pressed="'+(S.add.sign===1)+'">بعد</button><button type="button" data-act="sign" data-v="-1" aria-pressed="'+(S.add.sign===-1)+'">قبل</button></div>'+
+      '<div class="yr"><label class="flbl" for="addn">عدد الأيام</label><input class="num" id="addn" type="text" inputmode="numeric" dir="ltr" value="'+esc(S.add.n)+'"></div>'+
+      '<div class="btns"><button class="btn" type="button" data-act="today" data-p="ad">من اليوم</button></div></section><div id="out"></div>';
+  }else{
+    h='<div id="out"></div>';
+  }
+  $('panel').innerHTML=h;
+  compute();
+}
+function compute(){
+  var o=$('out');if(!o)return;
+  if(S.tab==='conv')o.innerHTML=convOut();
+  else if(S.tab==='cal')o.innerHTML=calOut();
+  else if(S.tab==='months')o.innerHTML=monthsOut();
+  else if(S.tab==='diff')o.innerHTML=diffOut();
+  else if(S.tab==='add')o.innerHTML=addOut();
+  else o.innerHTML=occOut();
+  var yi=document.querySelectorAll('#panel .dp [data-f="y"]');
+  Array.prototype.forEach.call(yi,function(inp){var id=inp.closest('.dp').dataset.p;inp.classList.toggle('bad',!!readP(id).err&&/السنة|بالأرقام/.test(readP(id).err));});
+}
+function convOut(){
+  var r=readP('cv');if(r.err)return errBox(r.err);
+  var dn=r.dn,g2h=S.dir==='g2h',t=today();
+  LAST=(g2h?hTxt(dn):gTxt(dn))+'\n'+(g2h?hEn(dn):gEn(dn));
+  var h='<section class="card res"><span class="flbl">'+(g2h?'يوافق بالهجري':'يوافق بالميلادي')+'</span><div class="big">'+(g2h?hTxt(dn):gTxt(dn))+'</div><div class="en">'+(g2h?hEn(dn):gEn(dn))+'</div>'+adjNote()+
+    rowsHTML([['التاريخ الهجري',hTxt(dn)],['التاريخ الميلادي',gTxt(dn)],['هجري بالأرقام',B(hNum(dn))+' هـ'],['ميلادي بالأرقام',B(gNum(dn))+' م'],['الشهر الميلادي بالاسم السرياني',GM_SY[gOf(dn).m-1]],['بالإنجليزي (هجري)',hEn(dn),1],['بالإنجليزي (ميلادي)',gEn(dn),1],['بصيغة ISO',iso(dn),1],['بالنسبة إلى اليوم',rel(dn-t)]])+
+    '<div class="btns"><button class="btn pri" type="button" data-act="copy">نسخ النتيجة</button><button class="btn" type="button" data-act="showcal" data-dn="'+dn+'">عرضه في التقويم</button></div></section>';
+  return h;
+}
+function anchorCal(dn){var x=S.calBase==='h'?hOf(dn):gOf(dn);S.cal.y=x.y;S.cal.m=x.m;}
+function calOut(){
+  var h=S.calBase==='h',y=S.cal.y,m=S.cal.m,first=h?dnOfH(y,m,1):dnOfG(y,m,1),len=h?hMonthLen(y,m):gMonthLen(y,m),t=today(),i;
+  var R=h?HY:GY,atMin=y===R[0]&&m===1,atMax=y===R[1]&&m===12;
+  var o1=h?gOf(first):hOf(first),o2=h?gOf(first+len-1):hOf(first+len-1),nm=h?GM_AR:HM_AR,sx=h?' م':' هـ';
+  var sub=o1.m===o2.m&&o1.y===o2.y?nm[o1.m-1]+' '+dz(o1.y)+sx:nm[o1.m-1]+(o1.y!==o2.y?' '+dz(o1.y):'')+' – '+nm[o2.m-1]+' '+dz(o2.y)+sx;
+  var c='<section class="card"><div class="seg" role="group" aria-label="التقويم الأساسي"><button type="button" data-act="cbase" data-v="h" aria-pressed="'+h+'">هجري</button><button type="button" data-act="cbase" data-v="g" aria-pressed="'+(!h)+'">ميلادي</button></div>'+
+    '<div class="calh"><div><div class="calt">'+(h?HM_AR:GM_AR)[m-1]+' '+dz(y)+(h?' هـ':' م')+'</div><div class="cals">'+sub+'</div></div>'+
+    '<div class="nav"><button class="btn" type="button" data-act="cprev" aria-label="الشهر السابق"'+(atMin?' disabled':'')+'>→</button><button class="btn" type="button" data-act="ctoday">اليوم</button><button class="btn" type="button" data-act="cnext" aria-label="الشهر التالي"'+(atMax?' disabled':'')+'>←</button></div></div>'+
+    '<div class="g7" role="grid">';
+  WD_SH.forEach(function(w){c+='<div class="wh">'+w+'</div>';});
+  for(i=0;i<wd(first);i++)c+='<div class="blank"></div>';
+  for(i=0;i<len;i++){
+    var dn=first+i,ox=h?gOf(dn):hOf(dn),sec=dz(ox.d)+(ox.d===1?' '+nm[ox.m-1]:'');
+    c+='<button type="button" class="cell'+(dn===t?' now':'')+(wd(dn)===5?' fri':'')+'" data-act="cell" data-dn="'+dn+'" aria-pressed="'+(dn===S.cal.sel)+'" aria-label="'+hTxt(dn)+'، '+gTxt(dn)+'"><span class="p">'+dz(i+1)+'</span><span class="s">'+sec+'</span></button>';
+  }
+  c+='</div>'+adjNote()+'</section>';
+  if(S.cal.sel!=null){
+    var sd=S.cal.sel;LAST=hTxt(sd)+'\n'+gTxt(sd);
+    c+='<section class="card res"><span class="flbl">اليوم المختار</span><div class="big">'+hTxt(sd)+'</div><div class="big" style="color:var(--ink)">'+gTxt(sd)+'</div><div class="en">'+hEn(sd)+' | '+gEn(sd)+'</div><div class="btns"><button class="btn pri" type="button" data-act="copy">نسخ</button></div></section>';
+  }
+  return c;
+}
+function monthsOut(){
+  var hy=parseInt(normDigits(S.mo.hy),10),gy=parseInt(normDigits(S.mo.gy),10),h='',i;
+  if(isNaN(hy)||hy<HY[0]||hy>HY[1])h+=errBox('السنة الهجرية يجب أن تكون من '+dz(HY[0])+' إلى '+dz(HY[1])+'.');
+  else{
+    var tot=0,rows='';
+    for(i=1;i<=12;i++){var L=hMonthLen(hy,i);tot+=L;rows+='<tr><td class="n">'+dz(i)+'</td><td>'+HM_AR[i-1]+'</td><td class="en2">'+HM_EN[i-1]+'</td><td class="n">'+dz(L)+'</td><td>'+gShort(dnOfH(hy,i,1))+'</td></tr>';}
+    h+='<section class="card"><h2>الأشهر الهجرية لعام '+dz(hy)+' هـ</h2><div class="tw"><table><thead><tr><th>الرقم</th><th>الشهر</th><th>بالإنجليزي</th><th>الأيام</th><th>يبدأ في</th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="flbl" style="margin:0">عدد أيام السنة: '+dz(tot)+' يوماً'+(S.adj?'، والبدايات معدّلة حسب الرؤية.':'.')+'</p></section>';
+  }
+  if(isNaN(gy)||gy<GY[0]||gy>GY[1])h+=errBox('السنة الميلادية يجب أن تكون من '+dz(GY[0])+' إلى '+dz(GY[1])+'.');
+  else{
+    var r2='';
+    for(i=1;i<=12;i++)r2+='<tr><td class="n">'+dz(i)+'</td><td>'+GM_AR[i-1]+'</td><td>'+GM_SY[i-1]+'</td><td class="en2">'+GM_EN[i-1]+'</td><td class="n">'+dz(gMonthLen(gy,i))+'</td><td>'+hShort(dnOfG(gy,i,1))+'</td></tr>';
+    h+='<section class="card"><h2>الأشهر الميلادية لعام '+dz(gy)+' م</h2><div class="tw"><table><thead><tr><th>الرقم</th><th>الشهر</th><th>الاسم السرياني</th><th>بالإنجليزي</th><th>الأيام</th><th>يبدأ في</th></tr></thead><tbody>'+r2+'</tbody></table></div></section>';
+  }
+  var r3='';
+  for(i=0;i<7;i++)r3+='<tr><td class="n">'+dz(i+1)+'</td><td>'+WD_AR[i]+'</td><td class="en2">'+WD_EN[i]+'</td></tr>';
+  h+='<section class="card"><h2>أيام الأسبوع</h2><div class="tw"><table style="min-width:300px"><thead><tr><th>الترتيب</th><th>اليوم</th><th>بالإنجليزي</th></tr></thead><tbody>'+r3+'</tbody></table></div></section>';
+  return h;
+}
+function ymd(a,b,cal){
+  var A=cal==='h'?hOf(a):gOf(a),Z=cal==='h'?hOf(b):gOf(b),y=Z.y-A.y,m=Z.m-A.m,d=Z.d-A.d;
+  if(d<0){m--;var pm=Z.m-1,py=Z.y;if(pm<1){pm=12;py--;}d+=cal==='h'?hMonthLen(py,pm):gMonthLen(py,pm);}
+  if(m<0){y--;m+=12;}
+  return {y:y,m:m,d:d};
+}
+function diffOut(){
+  var ra=readP('da'),rb=readP('db');
+  if(ra.err)return errBox('التاريخ الأول: '+ra.err);
+  if(rb.err)return errBox('التاريخ الثاني: '+rb.err);
+  var a=ra.dn,b=rb.dn,sw=false;if(b<a){var x=a;a=b;b=x;sw=true;}
+  var tot=b-a,g=ymd(a,b,'g'),h=ymd(a,b,'h'),wk=Math.floor(tot/7),rd=tot%7;
+  LAST='بالميلادي: '+ymdTxt(g)+'\nبالهجري: '+ymdTxt(h)+'\nإجمالي الأيام: '+dz(tot);
+  return '<section class="card res"><div class="mains"><div class="main"><small>المدة بالميلادي</small><b>'+ymdTxt(g)+'</b></div><div class="main"><small>المدة بالهجري</small><b>'+ymdTxt(h)+'</b></div></div>'+
+    (sw?'<p class="note">التاريخ الثاني أقدم من الأول، فحُسب الفرق بينهما بالعكس.</p>':'')+adjNote()+
+    rowsHTML([['إجمالي الأيام',tot===0?'لا فرق':cnt(tot,W_D)],['بالأسابيع',(wk?cnt(wk,W_W):'')+(wk&&rd?' و':'')+(rd?cnt(rd,W_D):'')+(tot===0?'لا فرق':'')],['من',hTxt(a)+' — '+gShort(a)+' م'],['إلى',hTxt(b)+' — '+gShort(b)+' م']])+
+    '<div class="btns"><button class="btn pri" type="button" data-act="copy">نسخ النتيجة</button></div></section>';
+}
+function addOut(){
+  var r=readP('ad');if(r.err)return errBox(r.err);
+  var n=normDigits(S.add.n);
+  if(!/^\d+$/.test(n))return errBox('اكتب عدد الأيام بالأرقام.');
+  n=parseInt(n,10);if(n>40000)return errBox('العدد كبير جداً. اكتب عدداً أقل من '+B(dz(40000))+' يوم.');
+  var dn=r.dn+S.add.sign*n,g=gOf(dn);
+  if(g.y<GY[0]||g.y>GY[1])return errBox('النتيجة خارج النطاق المدعوم.');
+  LAST=hTxt(dn)+'\n'+gTxt(dn);
+  return '<section class="card res"><span class="flbl">'+(n===0?'التاريخ نفسه':(S.add.sign>0?'بعد ':'قبل ')+(n===2?'يومين':cnt(n,W_D))+' يكون التاريخ')+'</span><div class="big">'+hTxt(dn)+'</div><div class="big" style="color:var(--ink)">'+gTxt(dn)+'</div>'+adjNote()+
+    rowsHTML([['هجري بالأرقام',B(hNum(dn))+' هـ'],['ميلادي بالأرقام',B(gNum(dn))+' م'],['بالنسبة إلى اليوم',rel(dn-today())]])+
+    '<div class="btns"><button class="btn pri" type="button" data-act="copy">نسخ النتيجة</button><button class="btn" type="button" data-act="showcal" data-dn="'+dn+'">عرضه في التقويم</button></div></section>';
+}
+var OCC_H=[['رأس السنة الهجرية',1,1],['يوم عاشوراء',1,10],['بداية شهر رمضان',9,1],['عيد الفطر',10,1],['يوم عرفة',12,9],['عيد الأضحى',12,10]];
+var OCC_G=[['يوم التأسيس',2,22],['اليوم الوطني',9,23]];
+function occOut(){
+  var t=today(),hy=hOf(t).y,gy=gOf(t).y,list=[];
+  OCC_H.forEach(function(o){for(var y=hy;y<=hy+1;y++){var dn=dnOfH(y,o[1],o[2]);if(dn!=null&&dn>=t){list.push({n:o[0],dn:dn});break;}}});
+  OCC_G.forEach(function(o){for(var y=gy;y<=gy+1;y++){var dn=dnOfG(y,o[1],o[2]);if(dn>=t){list.push({n:o[0],dn:dn});break;}}});
+  list.sort(function(a,b){return a.dn-b.dn;});
+  var h='<section class="card"><h2>المناسبات القادمة</h2><div class="occ">';
+  list.forEach(function(o){var d=o.dn-t;h+='<div class="oc"><b>'+o.n+'</b><span class="c'+(d<=30?' soon':'')+'">'+rel(d)+'</span><span class="d">'+hTxt(o.dn)+' — '+gShort(o.dn)+' م</span></div>';});
+  h+='</div><p class="note">مواعيد المناسبات الهجرية حسب تقويم أم القرى'+(S.adj?' مع تعديل الرؤية الذي اخترته':'')+'، وقد تختلف يوماً بحسب إعلان رؤية الهلال.</p></section>';
+  return h;
+}
+
+/* ---------- events ---------- */
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on');},1800);}
+function copyText(t){
+  function fb(){try{var ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');ta.remove();toast(ok?'تم النسخ':'حدّد النص يدوياً وانسخه');}catch(e){toast('حدّد النص يدوياً وانسخه');}}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.replace(/[⁦⁩]/g,'')).then(function(){toast('تم النسخ');},fb);else fb();}catch(e){fb();}
+}
+function setDir(d){
+  if(d===S.dir)return;
+  var r=readP('cv');S.dir=d;
+  if(r.dn!=null)setP('cv',r.dn,d==='g2h'?'g':'h');else setP('cv',today(),d==='g2h'?'g':'h');
+  save();renderTab();
+}
+function openCal(dn){S.tab='cal';anchorCal(dn);S.cal.sel=dn;save();renderTabs();renderTab();}
+$('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab');if(!b||b.dataset.t===S.tab)return;
+  S.tab=b.dataset.t;save();renderTabs();renderTab();
+});
+function onIn(e){
+  var t=e.target,dp=t.closest?t.closest('.dp'):null;
+  if(dp&&t.dataset.f){
+    var id=dp.dataset.p,p=S.p[id],f=t.dataset.f;
+    if(f==='cal'){
+      if(e.type!=='change')return;
+      var r=readP(id);
+      if(r.dn!=null)setP(id,r.dn,t.value);else{p.cal=t.value;if(p.d>30&&t.value==='h')p.d=30;}
+      renderTab();return;
+    }
+    if(f==='y')p.y=t.value;else p[f]=+t.value;
+    compute();return;
+  }
+  if(t.id==='mhy'){S.mo.hy=t.value;compute();}
+  else if(t.id==='mgy'){S.mo.gy=t.value;compute();}
+  else if(t.id==='addn'){S.add.n=t.value;compute();}
+}
+$('panel').addEventListener('input',onIn);
+$('panel').addEventListener('change',onIn);
+$('panel').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  var a=b.dataset.act,R;
+  if(a==='dir')setDir(b.dataset.v);
+  else if(a==='swap')setDir(S.dir==='g2h'?'h2g':'g2h');
+  else if(a==='today'){setP(b.dataset.p,today(),S.p[b.dataset.p].cal);renderTab();}
+  else if(a==='copy')copyText(LAST);
+  else if(a==='showcal')openCal(+b.dataset.dn);
+  else if(a==='cbase'){S.calBase=b.dataset.v;anchorCal(S.cal.sel!=null?S.cal.sel:today());save();renderTab();}
+  else if(a==='cprev'||a==='cnext'){
+    var k=a==='cprev'?-1:1;S.cal.m+=k;
+    if(S.cal.m<1){S.cal.m=12;S.cal.y--;}if(S.cal.m>12){S.cal.m=1;S.cal.y++;}
+    R=S.calBase==='h'?HY:GY;
+    if(S.cal.y<R[0]){S.cal.y=R[0];S.cal.m=1;}if(S.cal.y>R[1]){S.cal.y=R[1];S.cal.m=12;}
+    compute();var nb=document.querySelector('[data-act="'+a+'"]');if(nb&&!nb.disabled)nb.focus();
+  }
+  else if(a==='ctoday'){anchorCal(today());S.cal.sel=today();compute();}
+  else if(a==='cell'){S.cal.sel=+b.dataset.dn;compute();var c=document.querySelector('.cell[data-dn="'+b.dataset.dn+'"]');if(c)c.focus();}
+  else if(a==='sign'){S.add.sign=+b.dataset.v;renderTab();}
+});
+$('btnDig').addEventListener('click',function(){S.digits=S.digits==='ar'?'en':'ar';save();renderChrome();renderTab();});
+$('selAdj').addEventListener('change',function(){
+  S.adj=+this.value;save();renderChrome();renderTab();
+});
+
+/* ---------- start ---------- */
+load();
+(function init(){
+  var t=today(),g=gOf(t);
+  setP('cv',t,S.dir==='g2h'?'g':'h');
+  S.p.da={cal:'g',y:'1990',m:1,d:1};
+  setP('db',t,'g');setP('ad',t,'g');
+  S.mo.hy=String(hOf(t).y);S.mo.gy=String(g.y);
+  anchorCal(t);S.cal.sel=t;
+})();
+renderChrome();renderTabs();renderTab();
+if(!UQ){var n=document.createElement('p');n.className='note';n.textContent='متصفحك لا يدعم تقويم أم القرى، فاستُخدم التقويم الهجري الحسابي، وقد يختلف يوماً.';$('panel').parentNode.insertBefore(n,$('panel'));}
+})();
+</script>
+</body>
+</html>
