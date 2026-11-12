@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10224a">
+<meta name="robots" content="noindex">
+<meta name="description" content="حوّل بين وحدات الطول والوزن والسرعة والوقت والمساحة والحجم والحرارة والعملات، مع حاسبة البقشيش وحاسبة التمويل العقاري.">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<title>محوّل الوحدات</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap">
+<style>
+@font-face{font-family:'MajallaLocal';src:local('Sakkal Majalla'),local('SakkalMajalla'),local('Majalla');size-adjust:118%}
+/* Layout: navy header band, a searchable list of categories, then one converter card with the value in every unit below it */
+:root{
+  color-scheme:light;
+  --bg:#e7eaef; --card:#f8f9fb; --soft:#eef1f6; --ink:#0f1e3d; --muted:#586379; --line:#d1d7e0;
+  --band-a:#0e1d40; --band-b:#1c3566; --band-ink:#f4f6fa; --band-muted:#b6c1d8;
+  --sel-bg:#10224a; --sel-fg:#f4f6fa; --accent:#1c3566; --accent-t:#dfe5f0;
+  --gold:#a8741a; --gold-t:#f6ecd8; --down:#b8382f; --down-t:#f8e4e2; --up:#0f7a52; --up-t:#e0f1e9;
+  --focus:#10224a; --shadow:0 1px 2px rgba(16,34,74,.08),0 10px 26px rgba(16,34,74,.08);
+  --font:'MajallaLocal','Sakkal Majalla','Noto Naskh Arabic','Amiri',serif;
+  --latin:system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c121e; --card:#151e32; --soft:#0f1729; --ink:#e8ecf4; --muted:#9aa5ba; --line:#25304a;
+    --band-a:#101c3a; --band-b:#1a2d57;
+    --sel-bg:#dde4f3; --sel-fg:#0c121e; --accent:#a9c0ff; --accent-t:#1d2a48;
+    --gold:#e8be6a; --gold-t:#33291a; --down:#ff8a80; --down-t:#3a1d22; --up:#5fd3a0; --up-t:#123328;
+    --focus:#a9c0ff; --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.3); color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:19px;line-height:1.7;padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));min-height:100vh}
+button,input,select{font-family:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.in{max-width:960px;margin-inline:auto}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.band{background:linear-gradient(160deg,var(--band-a),var(--band-b));color:var(--band-ink);padding-top:calc(28px + env(safe-area-inset-top,0px));padding-bottom:24px}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 16px}
+.brand{display:flex;align-items:center;gap:12px;font:700 clamp(26px,5.6vw,38px)/1.35 var(--font);margin:0}
+.brand svg{flex:none}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid rgba(244,246,250,.4);color:var(--band-ink);border-radius:999px;padding:4px 16px;font:600 16px/1.3 var(--font);min-height:44px}
+.chip:hover{background:rgba(244,246,250,.12)}
+.chip select{border:0;background:transparent;color:inherit;font:700 16px var(--font);padding:0 2px}
+.chip select option{color:#10224a;background:#fff}
+.chip:focus-visible,.chip select:focus-visible{outline-color:#f4f6fa}
+.search{margin-top:18px;position:relative}
+.search input{width:100%;border:1.5px solid rgba(244,246,250,.3);background:rgba(244,246,250,.1);color:var(--band-ink);border-radius:14px;padding:10px 46px 10px 14px;font:600 19px/1.4 var(--font);min-height:50px}
+.search input::placeholder{color:var(--band-muted)}
+.search input:focus{outline:none;border-color:#f4f6fa;background:rgba(244,246,250,.16)}
+.search svg{position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none}
+
+main{padding-top:22px}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.cat{display:grid;grid-template-columns:56px minmax(0,1fr);gap:4px 14px;align-items:center;text-align:start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow);color:var(--ink);min-width:0}
+.cat:hover{border-color:var(--accent)}
+.ic{grid-row:1/4;width:56px;height:56px;border-radius:15px;background:var(--accent-t);color:var(--accent);display:grid;place-items:center;font:700 19px/1 var(--latin);direction:ltr}
+.cn{font:700 22px/1.35 var(--font)}
+.ce{font:500 14px/1.3 var(--latin);color:var(--muted);direction:ltr;text-align:right}
+.cu{font-size:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;text-align:right;font-family:var(--latin)}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:18px;padding:20px;color:var(--muted)}
+
+.back{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:4px 16px;font:600 17px/1.4 var(--font);min-height:44px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;min-width:0;margin-bottom:18px}
+.card h2{margin:0;font:700 22px/1.4 var(--font)}
+.head{display:flex;align-items:center;gap:12px}
+.head .ic{grid-row:auto}
+.head h1{margin:0;font:700 26px/1.35 var(--font)}
+.head small{display:block;font:500 15px/1.3 var(--latin);color:var(--muted);direction:ltr;text-align:right}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld>label,.flbl{font:600 18px/1.4 var(--font);color:var(--muted)}
+.num,.sel{border:1.5px solid var(--line);border-radius:14px;background:var(--soft);color:var(--ink);padding:6px 12px;min-height:52px;min-width:0;width:100%}
+.num{direction:ltr;text-align:center;font:700 28px/1.3 var(--latin);font-variant-numeric:tabular-nums}
+.sel{font:600 19px/1.4 var(--font)}
+.num:focus,.sel:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-t)}
+.num.bad{border-color:var(--down);background:var(--down-t)}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr);gap:10px;align-items:end}
+.swap{height:52px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);display:grid;place-items:center}
+.result{background:var(--accent-t);border-radius:16px;padding:12px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.rv{font:700 clamp(30px,7vw,46px)/1.25 var(--latin);color:var(--accent);direction:ltr;text-align:right;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.rs{color:var(--muted);font-size:18px}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{padding:6px 18px;border-radius:999px;font:700 17px/1.4 var(--font);border:1.5px solid var(--line);background:var(--card);color:var(--ink);min-height:44px}
+.btn.pri{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.pc{border:1.5px solid var(--line);background:var(--soft);color:var(--ink);border-radius:999px;padding:2px 14px;font:600 17px/1.7 var(--latin);min-height:40px}
+.pc[aria-pressed="true"]{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{flex:1 1 160px;border:1.5px solid var(--line);background:var(--soft);color:var(--ink);border-radius:14px;padding:8px 12px;font:600 18px/1.4 var(--font);min-height:48px}
+.seg button[aria-pressed="true"]{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+
+.all{display:flex;flex-direction:column}
+.row{font-size:19px;line-height:1.5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 6px;border-top:1px solid var(--line);background:transparent;border-left:0;border-right:0;border-bottom:0;color:var(--ink);text-align:start;width:100%;min-height:52px}
+.row:first-child{border-top:0}
+.row:hover{background:var(--soft)}
+.row[aria-pressed="true"]{background:var(--accent-t)}
+.row .u{min-width:0}
+.row .u b{font-weight:700}
+.row .u small{display:block;color:var(--muted);font:500 14px/1.3 var(--latin);direction:ltr;text-align:right}
+.row .v{font:700 19px/1.4 var(--latin);direction:ltr;text-align:left;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;min-width:0}
+.row.x{cursor:default}
+.note{margin:0;font-size:16px;color:var(--gold);background:var(--gold-t);border-radius:12px;padding:6px 12px}
+.note a{color:inherit}
+.err{margin:0;font:700 19px/1.7 var(--font);color:var(--down)}
+.mains{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.main{background:var(--accent-t);border-radius:16px;padding:10px 14px;min-width:0}
+.main.up{background:var(--up-t)}
+.main small{display:block;color:var(--muted);font-weight:600;font-size:16px}
+.main b{display:block;font:700 clamp(26px,6vw,34px)/1.3 var(--latin);color:var(--accent);direction:ltr;text-align:right;overflow-wrap:anywhere}
+.main.up b{color:var(--up)}
+.rows{margin:0}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:8px 2px;border-top:1px solid var(--line)}
+.rows dt{color:var(--muted);font-weight:600}
+.rows dd{margin:0;font:700 19px/1.5 var(--latin);direction:ltr;text-align:left}
+.stepper{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;gap:8px}
+.stepper button{border:1.5px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:700 26px/1 var(--latin)}
+.toast{position:fixed;left:0;right:0;bottom:calc(20px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:fit-content;max-width:calc(100% - 32px);background:var(--sel-bg);color:var(--sel-fg);border-radius:999px;padding:8px 22px;font:700 18px/1.5 var(--font);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+.toast.on{opacity:1}
+@media (max-width:520px){.pair{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);gap:8px}.sel{font-size:17px;padding:6px 8px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="band pad">
+  <div class="in">
+    <div class="top">
+      <h1 class="brand">
+        <svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="1" y="1" width="46" height="46" rx="13" fill="#f4f6fa" fill-opacity=".14" stroke="#f4f6fa" stroke-opacity=".35"/>
+          <path d="M13 18h20l-5-5M35 30H15l5 5" fill="none" stroke="#f4f6fa" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>محوّل الوحدات</span>
+      </h1>
+      <div class="tools">
+        <button class="chip" id="btnDig" type="button"></button>
+        <label class="chip" for="selPrec">الكسور العشرية
+          <select id="selPrec"><option value="2">2</option><option value="4">4</option><option value="6">6</option><option value="8">8</option></select>
+        </label>
+      </div>
+    </div>
+    <div class="search" id="searchBox">
+      <input id="q" type="search" autocomplete="off" placeholder="ابحث عن فئة أو وحدة، مثل: ميل أو kg" aria-label="بحث">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b6c1d8" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+    </div>
+  </div>
+</header>
+<main class="pad"><div class="in" id="view"></div></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='unit-converter-settings',RKEY='unit-converter-rates',DIG='٠١٢٣٤٥٦٧٨٩';
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+/* ---------- data ---------- */
+var HOUSE='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>';
+var CATS=[
+ {id:'length',ar:'الطول والمسافة',en:'Length - Distance',ic:'m',def:['km','mi'],extra:'ftin',u:[
+  ['mm','مليمتر','Millimeter','mm',0.001],['cm','سنتيمتر','Centimeter','cm',0.01],['m','متر','Meter','m',1],['km','كيلومتر','Kilometer','km',1000],
+  ['in','بوصة (إنش)','Inch','in',0.0254],['ft','قدم','Foot','ft',0.3048],['yd','ياردة','Yard','yd',0.9144],['mi','ميل','Mile','mi',1609.344],
+  ['nmi','ميل بحري','Nautical mile','nmi',1852],['um','ميكرومتر','Micrometer','µm',1e-6],['nm','نانومتر','Nanometer','nm',1e-9],['ang','أنغستروم','Angstrom','Å',1e-10],
+  ['ly','سنة ضوئية','Light-year','ly',9.4607304725808e15]]},
+ {id:'weight',ar:'الوزن والكتلة',en:'Weight - Mass',ic:'kg',def:['kg','lb'],extra:'lboz',u:[
+  ['mg','مليغرام','Milligram','mg',1e-6],['g','غرام','Gram','g',0.001],['kg','كيلوغرام','Kilogram','kg',1],['t','طن متري','Metric ton','t',1000],
+  ['lb','رطل (باوند)','Pound','lb',0.45359237],['oz','أونصة','Ounce','oz',0.028349523125],['ozt','أونصة ذهب (تروي)','Troy ounce','oz t',0.0311034768],
+  ['ct','قيراط','Carat','ct',0.0002],['tola','تولة','Tola','tola',0.0116638038],['st','ستون','Stone','st',6.35029318],
+  ['gr','حبة (غرين)','Grain','gr',6.479891e-5],['dr','درهم (درام)','Dram','dr',0.0017718451953125],['dwt','بنيويت','Pennyweight','dwt',0.00155517384],
+  ['tus','طن أمريكي','US ton','ton US',907.18474],['tuk','طن بريطاني','UK ton','ton UK',1016.0469088]]},
+ {id:'speed',ar:'السرعة',en:'Velocity - Speed',ic:'km/h',def:['kmh','mph'],u:[
+  ['kmh','كيلومتر في الساعة','Kilometer per hour','km/h',1/3.6],['mph','ميل في الساعة','Mile per hour','mph',0.44704],['ms','متر في الثانية','Meter per second','m/s',1],
+  ['kn','عقدة','Knot','kn',1852/3600],['fts','قدم في الثانية','Foot per second','ft/s',0.3048],['cms','سنتيمتر في الثانية','Centimeter per second','cm/s',0.01],
+  ['kms','كيلومتر في الثانية','Kilometer per second','km/s',1000],['mach','ماخ (عند سطح البحر)','Mach (sea level)','Mach',340.29]]},
+ {id:'time',ar:'الوقت',en:'Time',ic:'h',def:['h','min'],extra:'dhms',u:[
+  ['ms','ملي ثانية','Millisecond','ms',0.001],['s','ثانية','Second','s',1],['min','دقيقة','Minute','min',60],['h','ساعة','Hour','h',3600],
+  ['d','يوم','Day','d',86400],['wk','أسبوع','Week','wk',604800],['mo','شهر (متوسط)','Month (average)','mo',2629746],
+  ['yr','سنة ميلادية (متوسط)','Year (average)','yr',31556952],['hyr','سنة هجرية (متوسط)','Hijri year (average)','AH yr',354.36667*86400],
+  ['dec','عقد','Decade','dec',315569520],['cen','قرن','Century','c',3155695200]]},
+ {id:'area',ar:'المساحة',en:'Area',ic:'m²',def:['m2','ft2'],u:[
+  ['mm2','مليمتر مربع','Square millimeter','mm²',1e-6],['cm2','سنتيمتر مربع','Square centimeter','cm²',1e-4],['m2','متر مربع','Square meter','m²',1],
+  ['km2','كيلومتر مربع','Square kilometer','km²',1e6],['ha','هكتار','Hectare','ha',1e4],['dunam','دونم','Dunam','dunam',1000],['ar','آر','Are','a',100],
+  ['acre','فدان إنجليزي (آكر)','Acre','acre',4046.8564224],['feddan','فدان مصري','Feddan','feddan',4200.83],
+  ['in2','بوصة مربعة','Square inch','in²',0.00064516],['ft2','قدم مربع','Square foot','ft²',0.09290304],['yd2','ياردة مربعة','Square yard','yd²',0.83612736],
+  ['mi2','ميل مربع','Square mile','mi²',2589988.110336]]},
+ {id:'currency',ar:'العملات',en:'Currency',ic:'$',kind:'cur',def:['USD','SAR']},
+ {id:'temp',ar:'درجة الحرارة',en:'Temperature',ic:'°C',kind:'temp',def:['C','F'],u:[
+  ['C','مئوية (سيلسيوس)','Celsius','°C'],['F','فهرنهايت','Fahrenheit','°F'],['K','كلفن','Kelvin','K'],['Ra','رانكن','Rankine','°Ra'],
+  ['Re','ريومر','Réaumur','°Ré'],['Ro','رومر','Rømer','°Rø'],['De','ديليل','Delisle','°De'],['N','نيوتن','Newton','°N']]},
+ {id:'volume',ar:'الحجم والسعة',en:'Volume - Capacity',ic:'L',def:['L','galus'],u:[
+  ['ml','مليلتر','Milliliter','ml',0.001],['L','لتر','Liter','L',1],['m3','متر مكعب','Cubic meter','m³',1000],['cm3','سنتيمتر مكعب','Cubic centimeter','cm³',0.001],
+  ['mm3','مليمتر مكعب','Cubic millimeter','mm³',1e-6],['galus','غالون أمريكي','US gallon','US gal',3.785411784],['galuk','غالون بريطاني','UK gallon','UK gal',4.54609],
+  ['qt','كوارت أمريكي','US quart','qt',0.946352946],['pt','باينت أمريكي','US pint','pt',0.473176473],['cup','كوب أمريكي','US cup','cup',0.2365882365],
+  ['floz','أونصة سائلة أمريكية','US fluid ounce','US fl oz',0.0295735295625],['flozuk','أونصة سائلة بريطانية','UK fluid ounce','UK fl oz',0.0284130625],
+  ['tbsp','ملعقة كبيرة','Tablespoon (metric)','tbsp',0.015],['tsp','ملعقة صغيرة','Teaspoon (metric)','tsp',0.005],
+  ['bbl','برميل نفط','Oil barrel','bbl',158.987294928],['ft3','قدم مكعب','Cubic foot','ft³',28.316846592],['in3','بوصة مكعبة','Cubic inch','in³',0.016387064]]},
+ {id:'tip',ar:'حاسبة البقشيش',en:'Tip Calculator',ic:'%',kind:'tip'},
+ {id:'mortgage',ar:'حاسبة التمويل العقاري',en:'Mortgage Calculator',ic:HOUSE,kind:'mort'}
+];
+var TOC={C:function(x){return x;},F:function(x){return (x-32)*5/9;},K:function(x){return x-273.15;},Ra:function(x){return (x-491.67)*5/9;},Re:function(x){return x*5/4;},Ro:function(x){return (x-7.5)*40/21;},De:function(x){return 100-x*2/3;},N:function(x){return x*100/33;}};
+var FROMC={C:function(c){return c;},F:function(c){return c*9/5+32;},K:function(c){return c+273.15;},Ra:function(c){return (c+273.15)*9/5;},Re:function(c){return c*4/5;},Ro:function(c){return c*21/40+7.5;},De:function(c){return (100-c)*3/2;},N:function(c){return c*33/100;}};
+var CUR_AR={USD:'دولار أمريكي',SAR:'ريال سعودي',EUR:'يورو',GBP:'جنيه إسترليني',AED:'درهم إماراتي',KWD:'دينار كويتي',QAR:'ريال قطري',BHD:'دينار بحريني',OMR:'ريال عماني',
+  EGP:'جنيه مصري',JOD:'دينار أردني',IQD:'دينار عراقي',LBP:'ليرة لبنانية',SYP:'ليرة سورية',YER:'ريال يمني',SDG:'جنيه سوداني',LYD:'دينار ليبي',TND:'دينار تونسي',
+  DZD:'دينار جزائري',MAD:'درهم مغربي',MRU:'أوقية موريتانية',TRY:'ليرة تركية',CNY:'يوان صيني',JPY:'ين ياباني',INR:'روبية هندية',PKR:'روبية باكستانية',
+  BDT:'تاكا بنغلاديشية',IDR:'روبية إندونيسية',MYR:'رينغيت ماليزي',PHP:'بيزو فلبيني',KRW:'وون كوري',CHF:'فرنك سويسري',CAD:'دولار كندي',AUD:'دولار أسترالي',
+  NZD:'دولار نيوزيلندي',RUB:'روبل روسي',ZAR:'راند جنوب أفريقي',SEK:'كرونة سويدية',NOK:'كرونة نرويجية',DKK:'كرونة دنماركية',SGD:'دولار سنغافوري',HKD:'دولار هونغ كونغ',
+  THB:'بات تايلندي',BRL:'ريال برازيلي',MXN:'بيزو مكسيكي',NGN:'نيرة نيجيرية',ETB:'بير إثيوبي',KES:'شلن كيني',IRR:'ريال إيراني',AFN:'أفغاني',LKR:'روبية سريلانكية',NPR:'روبية نيبالية'};
+var POPULAR=['USD','SAR','EUR','GBP','AED','KWD','QAR','BHD','OMR','EGP','JOD','TRY','CNY','JPY','INR','PKR','CHF','CAD','AUD','MAD'];
+var PEGGED={USD:1,SAR:3.75,AED:3.6725,QAR:3.64,BHD:0.376,OMR:0.3845,JOD:0.709};
+
+/* ---------- state ---------- */
+var S={digits:'en',prec:4,view:'home',c:{},tip:{a:'250',p:'15',n:'1'},mort:{price:'1000000',down:'10',rate:'5',years:'25',m:'amort'}};
+var R={rates:null,time:'',src:''},Q='',LAST='',showAllCur=false;
+function load(){
+  try{
+    var o=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(o){
+      if(o.digits==='ar'||o.digits==='en')S.digits=o.digits;
+      if([2,4,6,8].indexOf(o.prec)>=0)S.prec=o.prec;
+      if(o.c&&typeof o.c==='object')S.c=o.c;
+      if(o.tip&&typeof o.tip==='object')S.tip=Object.assign(S.tip,o.tip);
+      if(o.mort&&typeof o.mort==='object')S.mort=Object.assign(S.mort,o.mort);
+    }
+    var r=JSON.parse(localStorage.getItem(RKEY)||'null');
+    if(r&&r.rates&&typeof r.rates==='object'){R.rates=r.rates;R.time=r.time||'';R.at=r.at||0;R.src='cache';}
+  }catch(e){}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({digits:S.digits,prec:S.prec,c:S.c,tip:S.tip,mort:S.mort}));}catch(e){}}
+
+/* ---------- numbers ---------- */
+function dz(s){s=String(s);return S.digits==='ar'?s.replace(/\d/g,function(d){return DIG[+d];}):s;}
+function parse(s){
+  if(s==null)return NaN;
+  s=String(s).replace(/[٠-٩]/g,function(c){return c.charCodeAt(0)-1632;}).replace(/[۰-۹]/g,function(c){return c.charCodeAt(0)-1776;})
+    .replace(/[٬،,\s]/g,'').replace(/٫/g,'.');
+  if(!/^-?\d*\.?\d*(e-?\d+)?$/i.test(s)||s===''||s==='-'||s==='.')return NaN;
+  return parseFloat(s);
+}
+function fmt(x,prec){
+  if(!isFinite(x))return '—';
+  if(prec==null)prec=S.prec;
+  if(x!==0)x=parseFloat(x.toPrecision(12));
+  var a=Math.abs(x),s;
+  if(a!==0&&(a>=1e15||a<Math.pow(10,-prec))){
+    s=x.toExponential(Math.min(prec,6)).replace(/\.?0+e/,'e').replace('e+','e');
+    var m=s.split('e'),SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+    return dz(m[0].replace('-','−'))+' × 10'+m[1].replace('-','⁻').replace(/\d/g,function(d){return SUP[+d];});
+  }
+  s=a.toFixed(prec);
+  if(prec>0)s=s.replace(/\.?0+$/,'');
+  var p=s.split('.');
+  p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,S.digits==='ar'?'٬':',');
+  s=p.join(S.digits==='ar'?'٫':'.');
+  var neg=x<0&&parseFloat(a.toFixed(prec))!==0;
+  return (neg?'−':'')+dz(s);
+}
+function money(x){return fmt(x,2);}
+
+/* ---------- currency ---------- */
+function curList(){
+  var codes=Object.keys(R.rates||PEGGED);
+  var pop=POPULAR.filter(function(c){return codes.indexOf(c)>=0;});
+  var rest=codes.filter(function(c){return pop.indexOf(c)<0;}).sort();
+  return pop.concat(rest);
+}
+function curUnits(){return curList().map(function(c){return [c,CUR_AR[c]||c,c,c];});}
+function rate(c){var r=R.rates||PEGGED;return r[c];}
+function fetchRates(force){
+  if(!force&&R.rates&&R.src!=='fallback'&&Date.now()-(R.at||0)<6*3600e3)return;
+  var c=typeof AbortController==='function'?new AbortController():null,t=c?setTimeout(function(){c.abort();},9000):0;
+  R.loading=true;if(S.view==='currency')render();
+  fetch('https://open.er-api.com/v6/latest/USD',c?{signal:c.signal}:{}).then(function(r){return r.json();}).then(function(d){
+    clearTimeout(t);R.loading=false;
+    if(d&&d.result==='success'&&d.rates&&d.rates.SAR){
+      R.rates=d.rates;R.time=d.time_last_update_utc||'';R.at=Date.now();R.src='live';
+      try{localStorage.setItem(RKEY,JSON.stringify({rates:R.rates,time:R.time,at:R.at}));}catch(e){}
+    }else if(!R.rates)R.src='fallback';
+    if(S.view==='currency')render();
+  }).catch(function(){clearTimeout(t);R.loading=false;if(!R.rates)R.src='fallback';if(S.view==='currency')render();});
+}
+
+/* ---------- conversion ---------- */
+function cat(id){for(var i=0;i<CATS.length;i++)if(CATS[i].id===id)return CATS[i];return null;}
+function units(c){return c.kind==='cur'?curUnits():c.u;}
+function unit(c,k){var u=units(c);for(var i=0;i<u.length;i++)if(u[i][0]===k)return u[i];return u[0];}
+function conv(c,v,from,to){
+  if(c.kind==='temp')return FROMC[to](TOC[from](v));
+  if(c.kind==='cur'){var a=rate(from),b=rate(to);return (a&&b)?v/a*b:NaN;}
+  return v*unit(c,from)[4]/unit(c,to)[4];
+}
+function cs(c){
+  var st=S.c[c.id];
+  if(!st||typeof st!=='object')st=S.c[c.id]={v:'1',from:c.def[0],to:c.def[1]};
+  var ks=units(c).map(function(u){return u[0];});
+  if(ks.indexOf(st.from)<0)st.from=ks.indexOf(c.def[0])>=0?c.def[0]:ks[0];
+  if(ks.indexOf(st.to)<0)st.to=ks.indexOf(c.def[1])>=0?c.def[1]:ks[1];
+  return st;
+}
+function extraRows(c,v,from){
+  var out=[],base;
+  if(c.extra==='ftin'){base=v*unit(c,from)[4];var tin=base/0.0254,neg=tin<0;tin=Math.abs(tin);var ft=Math.floor(tin/12),inch=tin-ft*12;if(inch>11.99995){ft++;inch=0;}
+    out.push(['قدم وبوصة','Feet and inches',(neg?'−':'')+fmt(ft,0)+' ft '+fmt(inch,2)+' in']);}
+  if(c.extra==='lboz'){base=v*unit(c,from)[4];var tlb=Math.abs(base)/0.45359237,lb=Math.floor(tlb),oz=(tlb-lb)*16;if(oz>15.99995){lb++;oz=0;}
+    out.push(['رطل وأونصة','Pounds and ounces',(base<0?'−':'')+fmt(lb,0)+' lb '+fmt(oz,2)+' oz']);}
+  if(c.extra==='dhms'){base=Math.abs(v*unit(c,from)[4]);var d=Math.floor(base/86400),h=Math.floor(base%86400/3600),mi=Math.floor(base%3600/60),se=base%60;
+    out.push(['أيام وساعات ودقائق وثوانٍ','Days, hours, minutes, seconds',fmt(d,0)+' d '+fmt(h,0)+' h '+fmt(mi,0)+' min '+fmt(se,2)+' s']);}
+  return out;
+}
+
+/* ---------- views ---------- */
+function icon(c){return '<span class="ic" aria-hidden="true">'+c.ic+'</span>';}
+function preview(c){
+  if(c.kind==='cur')return 'USD, SAR, EUR, GBP, AED, KWD, QAR, EGP...';
+  if(c.kind==='tip')return 'Amount, Percent, Tip, Total, People, Each';
+  if(c.kind==='mort')return 'Price, Down, Rate, Term, Monthly payment';
+  return c.u.map(function(u){return u[3];}).join(', ');
+}
+function norm(s){return String(s).toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[ً-ْ]/g,'');}
+function homeHTML(){
+  var q=norm(Q.trim()),list=CATS.filter(function(c){
+    if(!q)return true;
+    var hay=[c.ar,c.en,preview(c)].concat(c.u?c.u.map(function(u){return u[1]+' '+u[2]+' '+u[3];}):[]);
+    if(c.kind==='cur')hay=hay.concat(Object.keys(CUR_AR).map(function(k){return k+' '+CUR_AR[k];}));
+    return norm(hay.join(' ')).indexOf(q)>=0;
+  });
+  if(!list.length)return '<div class="empty">لا توجد نتيجة لبحثك. جرّب اسم وحدة آخر، مثل: متر أو رطل أو دولار.</div>';
+  return '<div class="cats">'+list.map(function(c){
+    return '<button class="cat" type="button" data-cat="'+c.id+'">'+icon(c)+'<span class="cn">'+c.ar+'</span><span class="ce">'+c.en+'</span><span class="cu">'+esc(preview(c))+'</span></button>';
+  }).join('')+'</div>';
+}
+function headHTML(c){return '<button class="back" type="button" data-act="home">→ كل الفئات</button><div class="card"><div class="head">'+icon(c)+'<div><h1>'+c.ar+'</h1><small>'+c.en+'</small></div></div></div>';}
+function optList(c,sel){return units(c).map(function(u){return '<option value="'+u[0]+'"'+(u[0]===sel?' selected':'')+'>'+esc(u[1])+' ('+esc(u[3])+')</option>';}).join('');}
+function convHTML(c){
+  var st=cs(c);
+  var h=headHTML(c)+'<section class="card"><div class="fld"><label for="val">القيمة</label><input class="num" id="val" type="text" inputmode="decimal" autocomplete="off" dir="ltr" value="'+esc(st.v)+'"></div>'+
+    '<div class="pair"><div class="fld"><label for="from">من</label><select class="sel" id="from">'+optList(c,st.from)+'</select></div>'+
+    '<button class="swap" type="button" data-act="swap" aria-label="تبديل الوحدتين"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-4-4M20 16H6l4 4"/></svg></button>'+
+    '<div class="fld"><label for="to">إلى</label><select class="sel" id="to">'+optList(c,st.to)+'</select></div></div>'+
+    '<div id="res"></div></section>';
+  if(c.kind==='cur'){
+    var note;
+    if(R.loading&&!R.rates)note='جارٍ جلب أسعار الصرف...';
+    else if(R.src==='fallback')note='تعذّر جلب الأسعار الحية. تظهر الآن العملات المربوطة بالدولار فقط بأسعارها الثابتة.';
+    else{var t=R.time?new Date(R.time):null;note='الأسعار للاسترشاد، وآخر تحديث لها '+(t&&!isNaN(t)?dz(t.getUTCDate()+'/'+(t.getUTCMonth()+1)+'/'+t.getUTCFullYear()):'غير معروف')+'. المصدر: <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a>.';}
+    h+='<p class="note">'+note+'</p><div class="btns" style="margin-bottom:18px"><button class="btn" type="button" data-act="rates">تحديث الأسعار</button></div>';
+  }
+  h+='<section class="card"><h2>القيمة بكل الوحدات</h2><div class="all" id="all"></div>'+(c.kind==='cur'?'<button class="btn" type="button" data-act="allcur">'+(showAllCur?'عرض العملات الشائعة فقط':'عرض كل العملات')+'</button>':'')+'</section>';
+  return h;
+}
+function convUpdate(c){
+  var st=cs(c),v=parse(st.v),inp=$('val');
+  var bad=isNaN(v)&&String(st.v).trim()!=='';if(inp){inp.classList.toggle('bad',bad);inp.setAttribute('aria-invalid',String(bad));}
+  if(isNaN(v)){$('res').innerHTML='<p class="err">اكتب رقماً في خانة القيمة.</p>';$('all').innerHTML='';return;}
+  if(c.kind==='temp'&&TOC[st.from](v)<-273.15-1e-9){$('res').innerHTML='<p class="err">هذه الدرجة أقل من الصفر المطلق، وهي أدنى حرارة ممكنة.</p>';$('all').innerHTML='';return;}
+  var fu=unit(c,st.from),tu=unit(c,st.to),r=conv(c,v,st.from,st.to);
+  LAST=fmt(v).replace(/٬/g,'')+' '+fu[3]+' = '+fmt(r)+' '+tu[3];
+  $('res').innerHTML='<div class="result"><div class="rv">'+fmt(r)+' <span style="font-size:.55em">'+esc(tu[3])+'</span></div><div class="rs">'+esc(fmt(v))+' '+esc(fu[1])+' = '+esc(fmt(r))+' '+esc(tu[1])+'</div></div>'+
+    (c.kind==='cur'&&isFinite(r)?'<div class="rs">'+dz('1')+' '+esc(fu[3])+' = '+fmt(conv(c,1,st.from,st.to))+' '+esc(tu[3])+'</div>':'')+
+    '<div class="btns"><button class="btn pri" type="button" data-act="copy">نسخ النتيجة</button></div>';
+  var list=units(c);
+  if(c.kind==='cur'&&!showAllCur)list=list.filter(function(u){return POPULAR.indexOf(u[0])>=0||u[0]===st.from||u[0]===st.to;});
+  var h=list.map(function(u){
+    return '<button class="row" type="button" data-to="'+u[0]+'" aria-pressed="'+(u[0]===st.to)+'"><span class="u"><b>'+esc(u[1])+'</b><small>'+esc(u[2]===u[3]?u[2]:u[2]+' ('+u[3]+')')+'</small></span><span class="v">'+fmt(conv(c,v,st.from,u[0]))+' '+esc(u[3])+'</span></button>';
+  }).join('');
+  extraRows(c,v,st.from).forEach(function(x){h+='<div class="row x"><span class="u"><b>'+x[0]+'</b><small>'+x[1]+'</small></span><span class="v">'+x[2]+'</span></div>';});
+  $('all').innerHTML=h;
+}
+function numFld(id,label,val,unitTxt){return '<div class="fld"><label for="'+id+'">'+label+(unitTxt?' <small>('+unitTxt+')</small>':'')+'</label><input class="num" id="'+id+'" type="text" inputmode="decimal" autocomplete="off" dir="ltr" value="'+esc(val)+'"></div>';}
+function chips(key,vals,cur,suffix){return '<div class="chips">'+vals.map(function(x){return '<button class="pc" type="button" data-chip="'+key+'" data-v="'+x+'" aria-pressed="'+(parse(cur)===x)+'">'+dz(x)+(suffix||'')+'</button>';}).join('')+'</div>';}
+function tipHTML(c){
+  var t=S.tip;
+  return headHTML(c)+'<section class="card"><div class="grid2">'+numFld('ta','المبلغ',t.a)+'<div class="fld">'+numFld('tp','نسبة البقشيش',t.p,'%').replace('<div class="fld">','').replace(/<\/div>$/,'')+chips('tp',[10,15,18,20,25],t.p,'%')+'</div>'+
+    '<div class="fld"><label for="tn">عدد الأشخاص</label><div class="stepper"><button type="button" data-act="tn-" aria-label="أنقص شخصاً">−</button><input class="num" id="tn" type="text" inputmode="numeric" dir="ltr" value="'+esc(t.n)+'"><button type="button" data-act="tn+" aria-label="زد شخصاً">+</button></div></div></div></section><div id="res"></div>';
+}
+function tipUpdate(){
+  var t=S.tip,a=parse(t.a),p=parse(t.p),n=parse(t.n);
+  if(isNaN(a)||isNaN(p)||isNaN(n)){$('res').innerHTML='<section class="card"><p class="err">اكتب رقماً في كل خانة.</p></section>';return;}
+  if(n<1||n%1){$('res').innerHTML='<section class="card"><p class="err">عدد الأشخاص يجب أن يكون عدداً صحيحاً من ١ فأكثر.</p></section>';return;}
+  var tip=a*p/100,tot=a+tip,each=tot/n;
+  LAST='البقشيش: '+money(tip)+'، الإجمالي: '+money(tot)+(n>1?'، على كل شخص: '+money(each):'');
+  $('res').innerHTML='<section class="card"><div class="mains"><div class="main"><small>البقشيش</small><b>'+money(tip)+'</b></div><div class="main"><small>الإجمالي</small><b>'+money(tot)+'</b></div>'+
+    (n>1?'<div class="main up"><small>على كل شخص</small><b>'+money(each)+'</b></div><div class="main"><small>بقشيش كل شخص</small><b>'+money(tip/n)+'</b></div>':'')+
+    '</div><div class="btns"><button class="btn pri" type="button" data-act="copy">نسخ النتيجة</button></div></section>';
+}
+function mortHTML(c){
+  var m=S.mort;
+  return headHTML(c)+'<section class="card"><div class="seg" role="group" aria-label="طريقة الحساب"><button type="button" data-act="mm" data-v="amort" aria-pressed="'+(m.m==='amort')+'">متناقص (قرض عادي)</button><button type="button" data-act="mm" data-v="flat" aria-pressed="'+(m.m==='flat')+'">ثابت (مرابحة)</button></div>'+
+    '<div class="grid2">'+numFld('mp','سعر العقار',m.price)+
+    '<div class="fld">'+numFld('md','الدفعة الأولى',m.down,'%').replace('<div class="fld">','').replace(/<\/div>$/,'')+chips('md',[0,10,20,30],m.down,'%')+'</div>'+
+    numFld('mr','نسبة الربح أو الفائدة السنوية',m.rate,'%')+
+    '<div class="fld">'+numFld('my','مدة التمويل',m.years,'سنوات').replace('<div class="fld">','').replace(/<\/div>$/,'')+chips('my',[5,10,15,20,25,30],m.years,'')+'</div></div></section><div id="res"></div>';
+}
+function mortUpdate(){
+  var m=S.mort,P=parse(m.price),d=parse(m.down),r=parse(m.rate),y=parse(m.years);
+  if([P,d,r,y].some(isNaN)){$('res').innerHTML='<section class="card"><p class="err">اكتب رقماً في كل خانة.</p></section>';return;}
+  if(d<0||d>100||y<=0||r<0){$('res').innerHTML='<section class="card"><p class="err">راجع الأرقام: الدفعة الأولى من ٠ إلى ١٠٠٪، والمدة أكبر من صفر، والنسبة ليست سالبة.</p></section>';return;}
+  var down=P*d/100,L=P-down,n=Math.round(y*12),pmt,interest;
+  if(m.m==='flat'){interest=L*r/100*y;pmt=(L+interest)/n;}
+  else{var i=r/100/12;pmt=i?L*i/(1-Math.pow(1+i,-n)):L/n;interest=pmt*n-L;}
+  var total=pmt*n;
+  LAST='القسط الشهري: '+money(pmt)+'، مبلغ التمويل: '+money(L)+'، إجمالي الربح: '+money(interest);
+  $('res').innerHTML='<section class="card"><div class="mains"><div class="main up"><small>القسط الشهري</small><b>'+money(pmt)+'</b></div><div class="main"><small>مبلغ التمويل</small><b>'+money(L)+'</b></div></div>'+
+    '<dl class="rows"><div><dt>الدفعة الأولى</dt><dd>'+money(down)+'</dd></div><div><dt>عدد الأقساط</dt><dd>'+dz(n)+'</dd></div><div><dt>إجمالي الربح أو الفائدة</dt><dd>'+money(interest)+'</dd></div><div><dt>إجمالي ما يُسدَّد للتمويل</dt><dd>'+money(total)+'</dd></div><div><dt>التكلفة الكلية مع الدفعة الأولى</dt><dd>'+money(total+down)+'</dd></div></dl>'+
+    '<p class="note">'+(m.m==='flat'?'الطريقة الثابتة تحسب الربح على كامل مبلغ التمويل طوال المدة، وهي الشائعة في عقود المرابحة.':'الطريقة المتناقصة تحسب الفائدة على الرصيد المتبقي كل شهر، وهي طريقة القروض العقارية المعتادة.')+' الأرقام تقديرية، والعرض الرسمي من جهة التمويل هو المرجع.</p>'+
+    '<div class="btns"><button class="btn pri" type="button" data-act="copy">نسخ النتيجة</button></div></section>';
+}
+function render(){
+  $('btnDig').textContent='الأرقام: '+(S.digits==='ar'?'٣ ٢ ١':'1 2 3');
+  $('selPrec').value=String(S.prec);
+  $('searchBox').hidden=S.view!=='home';
+  var v=$('view');
+  if(S.view==='home'){v.innerHTML=homeHTML();return;}
+  var c=cat(S.view);if(!c){S.view='home';render();return;}
+  if(c.kind==='tip'){v.innerHTML=tipHTML(c);tipUpdate();}
+  else if(c.kind==='mort'){v.innerHTML=mortHTML(c);mortUpdate();}
+  else{v.innerHTML=convHTML(c);convUpdate(c);}
+}
+function update(){
+  var c=cat(S.view);if(!c)return;
+  if(c.kind==='tip')tipUpdate();else if(c.kind==='mort')mortUpdate();else convUpdate(c);
+}
+
+/* ---------- events ---------- */
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on');},1800);}
+function copyText(t){
+  function fb(){try{var ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');ta.remove();toast(ok?'تم النسخ':'حدّد النص يدوياً وانسخه');}catch(e){toast('حدّد النص يدوياً وانسخه');}}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast('تم النسخ');},fb);else fb();}catch(e){fb();}
+}
+function open(id){S.view=id;var c=cat(id);if(c&&c.kind==='cur')fetchRates(false);render();try{window.scrollTo(0,0);}catch(e){}}
+$('q').addEventListener('input',function(){Q=this.value;if(S.view==='home')$('view').innerHTML=homeHTML();});
+$('btnDig').addEventListener('click',function(){S.digits=S.digits==='ar'?'en':'ar';save();render();});
+$('selPrec').addEventListener('change',function(){S.prec=+this.value;save();render();});
+var MAP={val:['c','v'],from:['c','from'],to:['c','to'],ta:['tip','a'],tp:['tip','p'],tn:['tip','n'],mp:['mort','price'],md:['mort','down'],mr:['mort','rate'],my:['mort','years']};
+function onIn(e){
+  var t=e.target,m=MAP[t.id];if(!m)return;
+  if(m[0]==='c'){var c=cat(S.view);cs(c)[m[1]]=t.value;if(t.id!=='val'){convUpdate(c);}else convUpdate(c);}
+  else{S[m[0]][m[1]]=t.value;
+    Array.prototype.forEach.call(document.querySelectorAll('.pc[data-chip="'+t.id+'"]'),function(b){b.setAttribute('aria-pressed',String(parse(t.value)===+b.dataset.v));});
+    update();}
+  save();
+}
+$('view').addEventListener('input',onIn);
+$('view').addEventListener('change',onIn);
+$('view').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.cat){open(b.dataset.cat);return;}
+  var c=cat(S.view),a=b.dataset.act;
+  if(b.dataset.to&&c){cs(c).to=b.dataset.to;$('to').value=b.dataset.to;save();convUpdate(c);toast('صارت الوحدة الهدف: '+unit(c,b.dataset.to)[1]);return;}
+  if(b.dataset.chip){var k=b.dataset.chip,inp=$(k);inp.value=b.dataset.v;onIn({target:inp});return;}
+  if(a==='home'){S.view='home';render();var btn=document.querySelector('[data-cat="'+c.id+'"]');if(btn)btn.focus();}
+  else if(a==='swap'){var st=cs(c),x=st.from;st.from=st.to;st.to=x;$('from').value=st.from;$('to').value=st.to;save();convUpdate(c);}
+  else if(a==='copy')copyText(LAST);
+  else if(a==='rates')fetchRates(true);
+  else if(a==='allcur'){showAllCur=!showAllCur;render();}
+  else if(a==='tn-'||a==='tn+'){var n=parse(S.tip.n);if(isNaN(n))n=1;n=Math.max(1,Math.round(n)+(a==='tn+'?1:-1));S.tip.n=String(n);$('tn').value=S.tip.n;save();tipUpdate();}
+  else if(a==='mm'){S.mort.m=b.dataset.v;save();render();}
+});
+
+load();render();
+})();
+</script>
+</body>
+</html>
