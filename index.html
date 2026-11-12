@@ -3,74 +3,155 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#10224a">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
 <title>مواقعي</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;700;800&family=Cairo:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap">
 <style>
+/* خط Sakkal Majalla يظهر على الأجهزة المثبّت عليها، وغيرها يعرض الخط الاحتياطي المشابه */
+@font-face{font-family:'MajallaLocal';src:local('Sakkal Majalla'),local('SakkalMajalla'),local('Majalla');size-adjust:118%}
 :root{
-  --paper:#f4f8fc; --grid:#dbe6f2; --card:#ffffff; --ink:#14213d; --muted:#586583; --line:#cdd9e8;
-  --c1:#0f8660; --c1d:#0a5f44; --c2:#c4560a; --c2d:#8c3c05; --c3:#6d41d6; --c3d:#4a2a9c; --c4:#1769d1; --c4d:#0f4a96;
-  --focus:#14213d;
-  --font-display:'Baloo Bhaijaan 2','Cairo',system-ui,sans-serif;
-  --font-body:'Cairo','Tajawal',system-ui,sans-serif;
   color-scheme:light;
+  --bg:#e7eaef; --card:#f8f9fb; --ink:#0f1e3d; --muted:#586379; --line:#d1d7e0;
+  --band-a:#0e1d40; --band-b:#1c3566; --band-ink:#f4f6fa; --band-muted:#b6c1d8;
+  --btn-bg:#10224a; --btn-fg:#f4f6fa; --focus:#10224a;
+  --shadow:0 1px 2px rgba(16,34,74,.08),0 10px 26px rgba(16,34,74,.08);
+  --font:'MajallaLocal','Sakkal Majalla','Noto Naskh Arabic','Amiri',serif;
 }
 @media (prefers-color-scheme: dark){
-  :root{--paper:#0f1830;--grid:#1a2747;--card:#17233f;--ink:#eef3ff;--muted:#a3b0cc;--line:#2b3b61;--focus:#ffd45a;color-scheme:dark}
+  :root{
+    --bg:#0c121e; --card:#151e32; --ink:#e8ecf4; --muted:#9aa5ba; --line:#25304a;
+    --band-a:#101c3a; --band-b:#1a2d57; --btn-bg:#dde4f3; --btn-fg:#0c121e; --focus:#a9c0ff;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.3); color-scheme:dark;
+  }
 }
 *{box-sizing:border-box}
-html{padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}
 body{
-  margin:0;background-color:var(--paper);
-  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-  background-size:28px 28px;color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.6;
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.7;
+  padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));min-height:100vh;
+}
+.in{max-width:920px;margin-inline:auto}
+.band{
+  background:linear-gradient(160deg,var(--band-a),var(--band-b));color:var(--band-ink);
+  padding-top:calc(44px + env(safe-area-inset-top,0px));padding-bottom:40px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:32px 56px;min-height:100vh;
 }
-.wrap{max-width:900px;margin-inline:auto}
-h1{font:800 clamp(36px,8vw,56px)/1.15 var(--font-display);margin:0 0 8px}
-.lead{margin:0 0 30px;color:var(--muted);max-width:52ch}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 16px}
+h1{font:700 clamp(36px,8vw,54px)/1.4 var(--font);margin:0;letter-spacing:0}
+.lead{margin:6px 0 0;color:var(--band-muted);max-width:50ch;font-size:18px}
+.chip{display:inline-flex;align-items:center;background:transparent;border:1.5px solid rgba(244,246,250,.4);color:var(--band-ink);border-radius:999px;padding:6px 18px;font:500 15px/1.2 var(--font);min-height:44px;cursor:pointer}
+.chip:hover{background:rgba(244,246,250,.12)}
+.main{padding:26px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.status{margin:0 0 18px;color:var(--muted);min-height:1.7em;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
 a.card{
-  display:flex;flex-direction:column;gap:10px;min-width:0;padding:20px;border-radius:24px;text-decoration:none;
-  background:var(--card);color:var(--ink);border:3px solid var(--line);box-shadow:0 7px 0 var(--line);
-  transition:transform .08s,box-shadow .08s;
+  display:flex;flex-direction:column;gap:10px;min-width:0;padding:20px;border-radius:20px;text-decoration:none;
+  background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);
+  transition:transform .15s,box-shadow .15s;
 }
-a.card:hover{transform:translateY(-2px);box-shadow:0 9px 0 var(--line)}
-a.card:active{transform:translateY(5px);box-shadow:0 2px 0 var(--line)}
-a.card:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
-.ico{width:64px;height:64px}
-.ttl{font:800 26px/1.2 var(--font-display)}
-.dsc{color:var(--muted);font-size:16px;line-height:1.6}
-.go{margin-top:auto;align-self:flex-start;background:var(--ink);color:var(--paper);border-radius:999px;padding:4px 18px;font:700 16px/1.6 var(--font-body)}
-.empty{color:var(--muted)}
+a.card:hover{transform:translateY(-3px)}
+a.card:active{transform:translateY(0)}
+a.card:focus-visible,.chip:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.ico{width:60px;height:60px;border-radius:15px;display:block;object-fit:cover}
+.ico.ph{display:grid;place-items:center;color:#f4f6fa;font:700 30px/1 var(--font)}
+.ttl{font:700 22px/1.55 var(--font);overflow-wrap:anywhere}
+.dsc{color:var(--muted);font-size:16px;line-height:1.7;overflow-wrap:anywhere}
+.go{margin-top:auto;align-self:flex-start;background:var(--btn-bg);color:var(--btn-fg);border-radius:999px;padding:4px 20px;font:600 15px/1.7 var(--font)}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:20px;padding:22px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>مواقعي</h1>
-  <p class="lead">مجموعة من الألعاب والمواقع التعليمية. اختر واحداً لتبدأ.</p>
-  <div class="grid" id="grid"></div>
-</div>
+<header class="band">
+  <div class="in head">
+    <div>
+      <h1>مواقعي</h1>
+      <p class="lead">كل موقع هنا له غرض محدد. تظهر المواقع الجديدة تلقائياً بعد نشرها.</p>
+    </div>
+    <button class="chip" id="btnRef" type="button">تحديث القائمة</button>
+  </div>
+</header>
+<main class="main">
+  <div class="in">
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <div class="grid" id="grid"></div>
+  </div>
+</main>
 <script>
-/* لإضافة موقع جديد: أضف سطراً جديداً هنا، واكتب اسم المجلد كما هو في المستودع. */
-var SITES=[
-  {folder:'math-puzzles',title:'ألغاز الأرقام',desc:'ألغاز جمع وطرح وضرب وقسمة للأطفال بالسحب والإفلات، مع ورشة عدّ بالبالونات والسيارات والمنازل.',icon:'math'}
-];
-function icon(kind,i){
-  var cols=['#0f8660','#c4560a','#6d41d6','#1769d1'];
-  if(kind==='math'){
-    return '<svg class="ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="4" fill="#0f8660"/><rect x="17" y="1" width="14" height="14" rx="4" fill="#c4560a"/><rect x="1" y="17" width="14" height="14" rx="4" fill="#6d41d6"/><rect x="17" y="17" width="14" height="14" rx="4" fill="#1769d1"/><g stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"><path d="M8 4.5v7M4.5 8h7"/><path d="M20.5 8h7"/><path d="M5 21l6 6M11 21l-6 6"/><path d="M20.5 24h7"/></g><circle cx="24" cy="20.5" r="1.4" fill="#fff"/><circle cx="24" cy="27.5" r="1.4" fill="#fff"/></svg>';
-  }
-  return '<svg class="ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="'+cols[i%4]+'"/><path d="M11 16h10M16 11v10" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>';
+(function(){
+'use strict';
+/* إعدادات الصفحة، ولا تحتاج لتعديلها عادة */
+var USER=/\.github\.io$/.test(location.hostname)?location.hostname.split('.')[0]:'bly-cloud';
+var HOME_REPO=(USER+'.github.io').toLowerCase();
+var ONLY_TOPIC='';            /* اكتب وسماً مثل mysite لتعرض المستودعات التي تحمل هذا الوسم فقط */
+var EXTRA=[];                 /* مواقع تقع داخل مجلدات هذا المستودع نفسه، مثل: [{folder:'math-puzzles'}] */
+var TTL=3600000, KEY='sites-home-cache-v1';
+var COLORS=['#1f3a68','#4a5a78','#2c4a7c','#5b6b86','#243b5e','#3d4f70'];
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function readCache(){try{var o=JSON.parse(localStorage.getItem(KEY));if(o&&Array.isArray(o.items))return o;}catch(e){}return null;}
+function writeCache(items){try{localStorage.setItem(KEY,JSON.stringify({t:Date.now(),items:items}));}catch(e){}}
+function timed(url,ms){
+  var c=typeof AbortController==='function'?new AbortController():null,t;
+  if(c)t=setTimeout(function(){c.abort();},ms);
+  return fetch(url,c?{signal:c.signal}:{}).then(function(r){clearTimeout(t);return r;},function(e){clearTimeout(t);throw e;});
 }
-function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-var g=document.getElementById('grid');
-if(!SITES.length){g.innerHTML='<p class="empty">لا توجد مواقع بعد.</p>';}
-else g.innerHTML=SITES.map(function(s,i){
-  return '<a class="card" href="'+esc(s.folder)+'/">'+icon(s.icon,i)+'<span class="ttl">'+esc(s.title)+'</span><span class="dsc">'+esc(s.desc)+'</span><span class="go">افتح الموقع</span></a>';
-}).join('');
+function enrich(s){
+  var out={folder:s.folder,title:s.folder,desc:s.desc||''};
+  return timed(encodeURIComponent(s.folder)+'/',6000).then(function(r){return r.ok?r.text():'';}).then(function(html){
+    if(!html)return;
+    var d=new DOMParser().parseFromString(html,'text/html');
+    var t=d.querySelector('title');if(t&&t.textContent.trim())out.title=t.textContent.trim();
+    var m=d.querySelector('meta[name="description"]');if(m&&m.getAttribute('content'))out.desc=m.getAttribute('content').trim();
+  }).catch(function(){}).then(function(){return out;});
+}
+function build(){
+  return timed('https://api.github.com/users/'+encodeURIComponent(USER)+'/repos?per_page=100&sort=pushed&direction=desc',8000)
+    .then(function(r){if(!r.ok)throw new Error('api');return r.json();})
+    .then(function(repos){
+      var list=repos.filter(function(r){
+        return r.has_pages&&!r.archived&&!r.disabled&&!r.private&&String(r.name).toLowerCase()!==HOME_REPO&&
+          (!ONLY_TOPIC||(r.topics||[]).indexOf(ONLY_TOPIC)>=0);
+      }).map(function(r){return {folder:r.name,desc:r.description||''};});
+      EXTRA.forEach(function(e){list.push({folder:e.folder,desc:e.desc||''});});
+      return Promise.all(list.map(enrich));
+    });
+}
+function show(items,msg){
+  var g=$('grid');
+  $('status').textContent=msg||(items.length?(items.length===1?'موقع واحد':items.length+' مواقع'):'');
+  if(!items.length){
+    g.innerHTML='<div class="empty">لا توجد مواقع منشورة بعد. أنشئ مستودعاً عاماً، وفعّل فيه GitHub Pages، وستظهر هنا بطاقته تلقائياً.</div>';
+    return;
+  }
+  g.innerHTML=items.map(function(s,i){
+    var href=encodeURIComponent(s.folder)+'/';
+    return '<a class="card" href="'+href+'"><img class="ico" src="'+href+'apple-touch-icon.png" alt="" width="60" height="60" loading="lazy" data-i="'+i+'">'+
+      '<span class="ttl">'+esc(s.title)+'</span>'+(s.desc?'<span class="dsc">'+esc(s.desc)+'</span>':'')+'<span class="go">افتح الموقع</span></a>';
+  }).join('');
+  Array.prototype.forEach.call(g.querySelectorAll('img.ico'),function(img){
+    img.addEventListener('error',function(){
+      var s=items[+img.dataset.i],ph=document.createElement('span');
+      ph.className='ico ph';ph.style.background=COLORS[+img.dataset.i%COLORS.length];
+      ph.textContent=(s.title||'?').charAt(0);ph.setAttribute('aria-hidden','true');
+      img.replaceWith(ph);
+    },{once:true});
+  });
+}
+function load(force){
+  var c=readCache();
+  if(c&&!force&&Date.now()-c.t<TTL){show(c.items);return;}
+  if(c)show(c.items,'جارٍ تحديث القائمة...');else{$('grid').innerHTML='';$('status').textContent='جارٍ جلب المواقع...';}
+  build().then(function(items){writeCache(items);show(items);}).catch(function(){
+    if(c)show(c.items,'تعذّر التحديث الآن، وهذه آخر قائمة محفوظة.');
+    else{$('grid').innerHTML='';$('status').textContent='تعذّر جلب قائمة المواقع من GitHub. حاول بعد قليل.';}
+  });
+}
+$('btnRef').addEventListener('click',function(){load(true);});
+load(false);
+})();
 </script>
 </body>
 </html>
