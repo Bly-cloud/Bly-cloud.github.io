@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10224a">
+<meta name="robots" content="noindex">
+<meta name="description" content="احسب النسبة من عدد، والزيادة والنقصان، ونسبة التغيّر، والعدد الأصلي، والخصم والضريبة، وتوزيع المبالغ، ونسبة الدرجات، مع شرح مبسط للخطوات.">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<title>حاسبة النسبة المئوية</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* Sakkal Majalla appears on devices that have it installed; others get the similar Naskh fallback */
+@font-face{font-family:'MajallaLocal';src:local('Sakkal Majalla'),local('SakkalMajalla'),local('Majalla');size-adjust:118%}
+/* Layout: navy header band with settings, tabs for the eight calculations, inputs beside a live result sheet, history below */
+:root{
+  color-scheme:light;
+  --bg:#e7eaef; --card:#f8f9fb; --soft:#eef1f6; --ink:#0f1e3d; --muted:#586379; --line:#d1d7e0;
+  --band-a:#0e1d40; --band-b:#1c3566; --band-ink:#f4f6fa; --band-muted:#b6c1d8;
+  --sel-bg:#10224a; --sel-fg:#f4f6fa; --accent:#1c3566; --accent-t:#dfe5f0;
+  --up:#0f7a52; --up-t:#e0f1e9; --down:#b8382f; --down-t:#f8e4e2; --flat:#586379;
+  --focus:#10224a;
+  --shadow:0 1px 2px rgba(16,34,74,.08),0 10px 26px rgba(16,34,74,.08);
+  --font:'MajallaLocal','Sakkal Majalla','Noto Naskh Arabic','Amiri',serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c121e; --card:#151e32; --soft:#0f1729; --ink:#e8ecf4; --muted:#9aa5ba; --line:#25304a;
+    --band-a:#101c3a; --band-b:#1a2d57;
+    --sel-bg:#dde4f3; --sel-fg:#0c121e; --accent:#a9c0ff; --accent-t:#1d2a48;
+    --up:#5fd3a0; --up-t:#123328; --down:#ff8a80; --down-t:#3a1d22; --flat:#9aa5ba;
+    --focus:#a9c0ff; --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.3); color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:19px;line-height:1.7;padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));min-height:100vh}
+button,input,select{font-family:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.in{max-width:1000px;margin-inline:auto}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.band{background:linear-gradient(160deg,var(--band-a),var(--band-b));color:var(--band-ink);padding-top:calc(30px + env(safe-area-inset-top,0px));padding-bottom:28px}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 16px}
+.brand{display:flex;align-items:center;gap:12px;font:700 clamp(28px,6vw,40px)/1.35 var(--font);margin:0}
+.brand svg{flex:none}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid rgba(244,246,250,.4);color:var(--band-ink);border-radius:999px;padding:4px 16px;font:600 16px/1.3 var(--font);min-height:44px}
+.chip:hover{background:rgba(244,246,250,.12)}
+.chip[aria-pressed="true"]{background:var(--band-ink);color:#10224a;border-color:var(--band-ink)}
+.chip select{border:0;background:transparent;color:inherit;font:700 16px var(--font);padding:0 2px}
+.chip select option{color:#10224a;background:#fff}
+.chip:focus-visible,.chip select:focus-visible{outline-color:#f4f6fa}
+
+main{padding-top:24px}
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:10px}
+.tab{padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:600 18px/1.4 var(--font);min-height:48px;min-width:0;box-shadow:var(--shadow)}
+.tab[aria-selected="true"]{background:var(--sel-bg);color:var(--sel-fg);border-color:var(--sel-bg)}
+.hint{margin:4px 4px 18px;color:var(--muted);min-height:1.7em}
+
+.work{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;align-items:start}
+@media (max-width:800px){.work{grid-template-columns:minmax(0,1fr)}}
+.panel,.rcard,.hist{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+.panel{display:flex;flex-direction:column;gap:18px;min-width:0}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld>label,.flbl{font:600 18px/1.4 var(--font);color:var(--muted)}
+.inwrap{position:relative;flex:1;min-width:0}
+.num,.sel,.txt{width:100%;border:1.5px solid var(--line);border-radius:14px;background:var(--soft);color:var(--ink);font:700 28px/1.3 var(--font);padding:6px 14px;min-height:54px}
+.num{direction:ltr;text-align:center;font-variant-numeric:tabular-nums}
+.sel,.txt{font:600 19px/1.5 var(--font);text-align:start}
+.num:focus,.sel:focus,.txt:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-t)}
+.num.bad{border-color:var(--down);background:var(--down-t)}
+.unit{position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);font:700 20px var(--font);color:var(--muted);pointer-events:none}
+.prow{display:flex;gap:8px;align-items:stretch}
+.step{width:54px;flex:none;border:1.5px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:700 28px/1 var(--font)}
+.step:active{background:var(--soft)}
+input[type=range]{width:100%;accent-color:var(--sel-bg);height:32px;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.pc{border:1.5px solid var(--line);background:var(--soft);color:var(--ink);border-radius:999px;padding:2px 14px;font:600 17px/1.7 var(--font);min-height:40px}
+.pc[aria-pressed="true"]{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.parties{display:flex;flex-direction:column;gap:10px}
+.party{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 44px;gap:8px;align-items:stretch}
+.party .num{font-size:24px;min-height:50px;padding-inline-start:30px}
+.party .txt{min-height:50px}
+.rm{border:1.5px solid var(--line);border-radius:14px;background:var(--card);color:var(--down);font:700 24px/1 var(--font)}
+.add{align-self:flex-start;border:1.5px dashed var(--muted);border-radius:999px;background:transparent;color:var(--ink);padding:6px 18px;font:600 17px/1.4 var(--font);min-height:44px}
+
+.rcard{display:flex;flex-direction:column;gap:16px;min-width:0}
+.rerr{margin:0;font:700 21px/1.7 var(--font);color:var(--down);text-align:center}
+.mains{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.main{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:16px;background:var(--accent-t);min-width:0}
+.main.up{background:var(--up-t)} .main.down{background:var(--down-t)}
+.ml{font:600 17px/1.4 var(--font);color:var(--muted)}
+.mv{font:700 clamp(36px,8vw,54px)/1.25 var(--font);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;direction:ltr;text-align:start;color:var(--accent)}
+.main.txt .mv{direction:rtl}
+.main.up .mv{color:var(--up)} .main.down .mv{color:var(--down)}
+.sent{margin:0;font:700 21px/1.8 var(--font);text-wrap:balance}
+.bar{display:flex;flex-direction:column;gap:8px}
+.bh{display:flex;justify-content:space-between;gap:8px;font:600 16px/1.4 var(--font);color:var(--muted)}
+.track{height:24px;border-radius:12px;background:var(--soft);border:1px solid var(--line);overflow:hidden;min-width:0}
+.fill{height:100%;border-radius:12px;background:var(--accent);min-width:4px;transition:width .25s}
+.fill.up{background:var(--up)} .fill.down{background:var(--down)} .fill.flat{background:var(--flat)}
+.crow{display:grid;grid-template-columns:minmax(5.5em,8em) minmax(0,1fr) minmax(4.5em,auto);gap:10px;align-items:center}
+@media (max-width:520px){
+  .crow{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"l v" "t t";row-gap:4px}
+  .crow .cl{grid-area:l}.crow .cv{grid-area:v}.crow .track{grid-area:t}
+}
+.cl{font:600 16px/1.3 var(--font);color:var(--muted);overflow-wrap:anywhere}
+.cv{font:700 18px/1.3 var(--font);direction:ltr;text-align:start;font-variant-numeric:tabular-nums}
+.rows{margin:0}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:8px 2px;border-top:1px solid var(--line)}
+.rows dt{color:var(--muted);font-weight:600;min-width:0;overflow-wrap:anywhere}
+.rows dd{margin:0;font:700 20px/1.5 var(--font);direction:ltr;text-align:end;font-variant-numeric:tabular-nums}
+.rows dd.t{direction:rtl}
+.stepsbox h3{margin:0 0 8px;font:700 21px/1.4 var(--font)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.steps li{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border-radius:12px;padding:8px 12px;font-size:18px;line-height:1.8;min-width:0}
+.sn{flex:none;width:28px;height:28px;border-radius:50%;background:var(--sel-bg);color:var(--sel-fg);font:700 15px/28px var(--font);text-align:center;margin-top:3px}
+.st{min-width:0;overflow-wrap:anywhere}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+.btn{padding:8px 20px;border-radius:999px;font:700 18px/1.4 var(--font);border:1.5px solid var(--line);background:var(--card);color:var(--ink);min-height:44px}
+.btn.pri{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.hist{margin-top:20px}
+.hist h2{margin:0 0 8px;font:700 22px/1.4 var(--font);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.hist ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.hist li{background:var(--soft);border-radius:12px;padding:8px 14px;font-size:18px;line-height:1.8;overflow-wrap:anywhere}
+.hist .none{color:var(--muted);margin:0}
+.btn.sm{font-size:16px;padding:4px 16px}
+.toast{position:fixed;left:0;right:0;bottom:calc(20px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:fit-content;max-width:calc(100% - 32px);background:var(--sel-bg);color:var(--sel-fg);border-radius:999px;padding:8px 22px;font:700 18px/1.5 var(--font);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="band pad">
+  <div class="in top">
+    <h1 class="brand">
+      <svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="1" y="1" width="46" height="46" rx="13" fill="#f4f6fa" fill-opacity=".14" stroke="#f4f6fa" stroke-opacity=".35"/>
+        <circle cx="16" cy="17" r="5.5" fill="none" stroke="#f4f6fa" stroke-width="3.4"/>
+        <circle cx="32" cy="31" r="5.5" fill="none" stroke="#f4f6fa" stroke-width="3.4"/>
+        <path d="M33 13L15 35" stroke="#f4f6fa" stroke-width="3.6" stroke-linecap="round"/>
+      </svg>
+      <span>حاسبة النسبة المئوية</span>
+    </h1>
+    <div class="tools">
+      <button class="chip" id="btnDig" type="button"></button>
+      <label class="chip" for="selDec">الكسور العشرية
+        <select id="selDec"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+      </label>
+      <button class="chip" id="btnExp" type="button" aria-pressed="true">الشرح المبسط</button>
+    </div>
+  </div>
+</header>
+
+<main class="pad">
+  <div class="in">
+    <nav class="tabs" id="tabs" role="tablist" aria-label="نوع الحساب"></nav>
+    <p class="hint" id="hint"></p>
+    <div class="work">
+      <section class="panel" id="panel" aria-label="المدخلات"></section>
+      <section id="result" aria-live="polite" aria-label="النتيجة"></section>
+    </div>
+    <section class="hist" id="hist" aria-label="السجل"></section>
+  </div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='percentage-calculator-settings', DIG='٠١٢٣٤٥٦٧٨٩';
+var S={mode:'of',digits:'en',dec:2,explain:true,vals:{},hist:[]};
+var L=null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+/* ---------- formatting ---------- */
+function dz(s){s=String(s);return S.digits==='ar'?s.replace(/\d/g,function(d){return DIG[+d];}):s;}
+function B(x){return '⁦'+x+'⁩';}
+function fmt(n,d){
+  if(!isFinite(n))return '-';
+  if(d==null)d=S.dec;
+  var a=Math.abs(n),s=a.toFixed(d);
+  if(d>0)s=s.replace(/\.?0+$/,'');
+  var p=s.split('.');
+  p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,S.digits==='ar'?'٬':',');
+  s=p.join(S.digits==='ar'?'٫':'.');
+  var neg=n<0&&parseFloat(a.toFixed(d))!==0;
+  return (neg?'−':'')+dz(s);
+}
+function pcs(){return S.digits==='ar'?'٪':'%';}
+function fq(n){return fmt(n,Math.max(S.dec,4));}
+function Nn(x){return B(fmt(x));}
+function Pc(x){return B(fmt(x)+pcs());}
+function Qq(x){return B(fq(x));}
+function H(n){return B(dz(n));}
+function parse(s){
+  if(s==null)return NaN;
+  s=String(s).replace(/[٠-٩]/g,function(c){return c.charCodeAt(0)-1632;})
+    .replace(/[٬،,\s]/g,'').replace(/٫/g,'.');
+  if(!/^-?\d*\.?\d*$/.test(s)||s===''||s==='-'||s==='.'||s==='-.')return NaN;
+  return parseFloat(s);
+}
+function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
+function frac(p){
+  var n=Math.round(p*100);
+  if(Math.abs(p*100-n)>1e-7||n===0)return '';
+  var d=10000,k=gcd(n,d);n/=k;d/=k;
+  return d===1?B(dz(n)):B(dz(n+'/'+d));
+}
+function partiesTxt(k){return k===1?'طرف واحد':k===2?'طرفين':(k<=10?dz(k)+' أطراف':dz(k)+' طرفاً');}
+
+/* ---------- calculations ---------- */
+function cOf(x){
+  var p=x.p,n=x.n,t=n*p/100,rows=[['النسبة كعدد عشري',Qq(p/100)]],fr=frac(p);
+  if(fr)rows.push(['النسبة ككسر',fr]);
+  rows.push(['العدد بعد زيادة النسبة',Nn(n+t)],['العدد بعد إنقاص النسبة',Nn(n-t)]);
+  return {mains:[{l:'الناتج',t:Nn(t)}],
+    sentence:Pc(p)+' من '+Nn(n)+' تساوي '+Nn(t),rows:rows,
+    bar:{type:'share',pct:p,l:'حصة النسبة من العدد'},
+    steps:['اضرب العدد في النسبة: '+Nn(n)+' × '+Nn(p)+' = '+Qq(n*p),'اقسم على '+H(100)+': '+Qq(n*p)+' ÷ '+H(100)+' = '+Nn(t)]};
+}
+function cPart(x){
+  var a=x.a,b=x.b;
+  if(b===0)return {err:'الكل لا يمكن أن يكون صفراً. غيّر الرقم في خانة الكل.'};
+  var q=a/b,p=q*100;
+  return {mains:[{l:'النسبة',t:Pc(p)}],
+    sentence:Nn(a)+' تمثل '+Pc(p)+' من '+Nn(b),
+    rows:[['النسبة كعدد عشري',Qq(q)],['المتبقي من الكل',Nn(b-a)+' ('+Pc(100-p)+')']],
+    bar:{type:'share',pct:p,l:'الجزء من الكل'},
+    steps:['اقسم الجزء على الكل: '+Nn(a)+' ÷ '+Nn(b)+' = '+Qq(q),'اضرب في '+H(100)+': '+Qq(q)+' × '+H(100)+' = '+Pc(p)]};
+}
+function cIncDec(x){
+  var n=x.n,p=x.p,d=n*p/100,inc=n+d,dec=n-d;
+  return {mains:[{l:'بعد الزيادة',t:Nn(inc),tone:'up'},{l:'بعد النقصان',t:Nn(dec),tone:'down'}],
+    sentence:'زيادة '+Pc(p)+' على '+Nn(n)+' تعطي '+Nn(inc)+'، ونقصان '+Pc(p)+' منه يعطي '+Nn(dec),
+    rows:[['قيمة النسبة',Nn(d)]],
+    bar:{type:'cmp',items:[{l:'الأصل',v:n,t:Nn(n)},{l:'بعد الزيادة',v:inc,t:Nn(inc),tone:'up'},{l:'بعد النقصان',v:dec,t:Nn(dec),tone:'down'}]},
+    steps:['احسب قيمة النسبة: '+Nn(n)+' × '+Nn(p)+' ÷ '+H(100)+' = '+Nn(d),'بالزيادة: '+Nn(n)+' + '+Nn(d)+' = '+Nn(inc),'بالنقصان: '+Nn(n)+' − '+Nn(d)+' = '+Nn(dec)]};
+}
+function cChange(x){
+  var o=x.o,w=x.w;
+  if(o===0)return {err:'القيمة القديمة لا يمكن أن تكون صفراً.'};
+  var d=w-o,q=d/Math.abs(o),p=q*100,tone=d>0?'up':d<0?'down':'flat';
+  var lab=d>0?'نسبة الارتفاع':d<0?'نسبة الانخفاض':'لا يوجد تغيّر';
+  var s=d>0?'ارتفعت القيمة من '+Nn(o)+' إلى '+Nn(w)+' بنسبة '+Pc(p):d<0?'انخفضت القيمة من '+Nn(o)+' إلى '+Nn(w)+' بنسبة '+Pc(-p):'القيمة ثابتة عند '+Nn(o);
+  return {mains:[{l:lab,t:Pc(Math.abs(p)),tone:tone}],sentence:s,
+    rows:[['الفرق بين القيمتين',Nn(d)],['القيمة الجديدة كنسبة من القديمة',Pc(w/o*100)]],
+    bar:{type:'cmp',items:[{l:'القيمة القديمة',v:o,t:Nn(o)},{l:'القيمة الجديدة',v:w,t:Nn(w),tone:tone}]},
+    steps:['احسب الفرق: '+Nn(w)+' − '+Nn(o)+' = '+Nn(d),'اقسم الفرق على القيمة القديمة: '+Nn(d)+' ÷ '+Nn(o)+' = '+Qq(q),'اضرب في '+H(100)+': '+Qq(q)+' × '+H(100)+' = '+Pc(p)]};
+}
+function cWhole(x){
+  var v=x.v,p=x.p,k=x.k,W,m;
+  if(k==='share'){
+    if(p===0)return {err:'النسبة لا يمكن أن تكون صفراً.'};
+    W=v*100/p;
+    return {mains:[{l:'العدد الأصلي',t:Nn(W)}],
+      sentence:Nn(v)+' تمثل '+Pc(p)+' من العدد الأصلي، إذن العدد الأصلي هو '+Nn(W),
+      rows:[['المتبقي من الأصل',Nn(W-v)]],
+      bar:{type:'share',pct:p,l:'حصة القيمة من الأصل'},
+      steps:['اضرب القيمة في '+H(100)+': '+Nn(v)+' × '+H(100)+' = '+Nn(v*100),'اقسم على النسبة: '+Nn(v*100)+' ÷ '+Nn(p)+' = '+Nn(W)]};
+  }
+  var up=k==='up';
+  m=up?1+p/100:1-p/100;
+  if(m===0)return {err:'هذه النسبة تجعل القسمة على صفر. غيّر النسبة.'};
+  W=v/m;
+  return {mains:[{l:up?'العدد قبل الزيادة':'العدد قبل الخصم',t:Nn(W)}],
+    sentence:(up?'بعد زيادة ':'بعد خصم ')+Pc(p)+' صار العدد '+Nn(v)+'، إذن العدد '+(up?'قبل الزيادة':'قبل الخصم')+' هو '+Nn(W),
+    rows:[[up?'قيمة الزيادة':'قيمة الخصم',Nn(Math.abs(v-W))]],
+    bar:{type:'cmp',items:[{l:'الأصل',v:W,t:Nn(W)},{l:'بعد التغيير',v:v,t:Nn(v),tone:up?'up':'down'}]},
+    steps:['احسب المعامل: '+H(1)+(up?' + ':' − ')+Nn(p)+' ÷ '+H(100)+' = '+Qq(m),'اقسم القيمة على المعامل: '+Nn(v)+' ÷ '+Qq(m)+' = '+Nn(W)]};
+}
+function cDisc(x){
+  var pr=x.pr,d=x.d,t=x.t,after=pr*(1-d/100),tax=after*t/100,total=after+tax,saved=pr-after;
+  return {mains:[{l:'الإجمالي النهائي',t:Nn(total)},{l:'وفّرت',t:Nn(saved),tone:'up'}],
+    sentence:'سعر '+Nn(pr)+' بعد خصم '+Pc(d)+' وضريبة '+Pc(t)+' يصبح '+Nn(total)+'، وقد وفّرت '+Nn(saved),
+    rows:[['السعر الأصلي',Nn(pr)],['السعر بعد الخصم',Nn(after)],['قيمة الضريبة',Nn(tax)]],
+    bar:{type:'cmp',items:[{l:'السعر الأصلي',v:pr,t:Nn(pr)},{l:'بعد الخصم',v:after,t:Nn(after),tone:'up'},{l:'الإجمالي',v:total,t:Nn(total)}]},
+    steps:['قيمة الخصم: '+Nn(pr)+' × '+Nn(d)+' ÷ '+H(100)+' = '+Nn(saved),'السعر بعد الخصم: '+Nn(pr)+' − '+Nn(saved)+' = '+Nn(after),'الضريبة على السعر بعد الخصم: '+Nn(after)+' × '+Nn(t)+' ÷ '+H(100)+' = '+Nn(tax),'الإجمالي: '+Nn(after)+' + '+Nn(tax)+' = '+Nn(total)]};
+}
+function cDist(x){
+  var n=x.n,ps=x.parties,sum=0,rows=[],items=[],steps=[];
+  ps.forEach(function(pt,i){
+    var nm=esc(pt.name.trim()||('الطرف '+(i+1))),amt=n*pt.p/100;
+    sum+=pt.p;
+    rows.push([nm+' ('+Pc(pt.p)+')',Nn(amt)]);
+    items.push({l:nm,v:amt,t:Nn(amt)});
+    steps.push(nm+': '+Nn(n)+' × '+Nn(pt.p)+' ÷ '+H(100)+' = '+Nn(amt));
+  });
+  var diff=100-sum,full=Math.abs(diff)<1e-9,s;
+  if(full)s='وُزّع المبلغ '+Nn(n)+' كاملاً على '+partiesTxt(ps.length)+'.';
+  else if(diff>0){s='مجموع النسب '+Pc(sum)+'، ويبقى '+Pc(diff)+' بقيمة '+Nn(n*diff/100)+' غير موزّعة.';rows.push(['المتبقي غير الموزّع',Nn(n*diff/100)]);}
+  else s='مجموع النسب '+Pc(sum)+'، وهذا يزيد على المبلغ بمقدار '+Nn(n*-diff/100)+'. راجع النسب.';
+  return {mains:[{l:'مجموع النسب',t:Pc(sum),tone:full?'up':'down'},{l:'المبلغ الموزّع',t:Nn(n*sum/100)}],
+    sentence:s,rows:rows,bar:{type:'cmp',items:items},steps:steps};
+}
+var SCALE=[{min:90,n:'ممتاز',tone:'up'},{min:80,n:'جيد جداً',tone:'up'},{min:70,n:'جيد',tone:''},{min:60,n:'مقبول',tone:'flat'},{min:-Infinity,n:'راسب',tone:'down'}];
+function cGrade(x){
+  var s=x.s,m=x.m;
+  if(m<=0)return {err:'الدرجة الكاملة يجب أن تكون أكبر من صفر.'};
+  if(s<0)return {err:'الدرجة لا يمكن أن تكون سالبة.'};
+  if(s>m)return {err:'درجتك أكبر من الدرجة الكاملة. راجع الرقمين.'};
+  var p=s/m*100,i=0;
+  while(p<SCALE[i].min-1e-9)i++;
+  var g=SCALE[i],rows=[['الدرجات المفقودة',Nn(m-s)]];
+  if(i>0){var nx=SCALE[i-1],need=nx.min*m/100;rows.push(['للوصول إلى '+nx.n,'<span dir="rtl">تحتاج '+Nn(need)+' من '+Nn(m)+'</span>']);}
+  return {mains:[{l:'النسبة',t:Pc(p),tone:g.tone==='down'?'down':''},{l:'التقدير',t:g.n,tone:g.tone,txt:true}],
+    sentence:'درجة '+Nn(s)+' من '+Nn(m)+' تساوي '+Pc(p)+'، والتقدير '+g.n,
+    rows:rows,bar:{type:'share',pct:p,l:'النسبة من الدرجة الكاملة'},
+    steps:['اقسم درجتك على الدرجة الكاملة: '+Nn(s)+' ÷ '+Nn(m)+' = '+Qq(s/m),'اضرب في '+H(100)+': '+Qq(s/m)+' × '+H(100)+' = '+Pc(p),
+      'التقدير حسب السلم الشائع: ممتاز من '+Pc(90)+'، وجيد جداً من '+Pc(80)+'، وجيد من '+Pc(70)+'، ومقبول من '+Pc(60)+'.']};
+}
+
+var CH=[5,10,15,20,25,50];
+var MODES=[
+  {id:'of',name:'نسبة من عدد',hint:'اعرف كم تساوي نسبة معينة من أي عدد.',calc:cOf,
+   f:[{k:'p',l:'النسبة',pct:true,def:'15',chips:CH},{k:'n',l:'العدد',def:'200'}]},
+  {id:'part',name:'كم تمثل؟',hint:'اعرف النسبة المئوية التي يمثلها جزء من كل.',calc:cPart,
+   f:[{k:'a',l:'الجزء',def:'30'},{k:'b',l:'الكل',def:'200'}]},
+  {id:'incdec',name:'زيادة ونقصان',hint:'أضف نسبة إلى عدد أو أنقصها منه، وشاهد النتيجتين معاً.',calc:cIncDec,
+   f:[{k:'n',l:'العدد',def:'500'},{k:'p',l:'النسبة',pct:true,def:'10',chips:CH}]},
+  {id:'change',name:'نسبة التغيّر',hint:'اعرف نسبة الارتفاع أو الانخفاض بين قيمتين.',calc:cChange,
+   f:[{k:'o',l:'القيمة القديمة',def:'80'},{k:'w',l:'القيمة الجديدة',def:'100'}]},
+  {id:'whole',name:'العدد الأصلي',hint:'ارجع من النتيجة إلى العدد الذي بدأت منه.',calc:cWhole,
+   f:[{k:'k',l:'ما الذي تعرفه؟',sel:[['share','القيمة تمثل نسبة من الأصل'],['up','القيمة بعد زيادة بهذه النسبة'],['down','القيمة بعد خصم بهذه النسبة']],def:'up'},
+      {k:'v',l:'القيمة',def:'115'},{k:'p',l:'النسبة',pct:true,def:'15',chips:CH}]},
+  {id:'disc',name:'خصم وضريبة',hint:'احسب السعر النهائي بعد الخصم ثم الضريبة، وكم وفّرت.',calc:cDisc,
+   f:[{k:'pr',l:'السعر',def:'400'},{k:'d',l:'نسبة الخصم',pct:true,def:'20',chips:CH},{k:'t',l:'نسبة الضريبة',pct:true,def:'15',chips:[5,10,15]}]},
+  {id:'dist',name:'توزيع مبلغ',hint:'قسّم مبلغاً على عدة أطراف بنسب مختلفة.',calc:cDist,dist:true,
+   f:[{k:'n',l:'المبلغ الكلي',def:'10000'}]},
+  {id:'grade',name:'نسبة الدرجات',hint:'احسب نسبة درجتك من الدرجة الكاملة وتقديرها.',calc:cGrade,
+   f:[{k:'s',l:'درجتك',def:'43'},{k:'m',l:'الدرجة الكاملة',def:'50'}]}
+];
+var DEF_PARTIES=[{name:'الطرف الأول',p:'50'},{name:'الطرف الثاني',p:'30'},{name:'الطرف الثالث',p:'20'}];
+function mode(){for(var i=0;i<MODES.length;i++)if(MODES[i].id===S.mode)return MODES[i];return MODES[0];}
+function vals(){
+  var m=mode(),v=S.vals[m.id];
+  if(!v||typeof v!=='object')v=S.vals[m.id]={};
+  m.f.forEach(function(fl){if(typeof v[fl.k]!=='string')v[fl.k]=fl.def;});
+  if(m.dist){
+    if(!Array.isArray(v.parties)||!v.parties.length)v.parties=JSON.parse(JSON.stringify(DEF_PARTIES));
+    v.parties=v.parties.slice(0,10).map(function(p){return {name:typeof p.name==='string'?p.name:'',p:typeof p.p==='string'?p.p:'0'};});
+  }
+  return v;
+}
+
+/* ---------- storage ---------- */
+function load(){
+  try{
+    var r=localStorage.getItem(KEY);if(!r)return;
+    var o=JSON.parse(r);
+    if(o.digits==='ar'||o.digits==='en')S.digits=o.digits;
+    if(typeof o.dec==='number'&&o.dec>=0&&o.dec<=4)S.dec=Math.floor(o.dec);
+    if(typeof o.explain==='boolean')S.explain=o.explain;
+    if(o.vals&&typeof o.vals==='object')S.vals=o.vals;
+    if(Array.isArray(o.hist))S.hist=o.hist.filter(function(x){return typeof x==='string';}).slice(0,10);
+    if(MODES.some(function(m){return m.id===o.mode;}))S.mode=o.mode;
+  }catch(e){}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({mode:S.mode,digits:S.digits,dec:S.dec,explain:S.explain,vals:S.vals,hist:S.hist}));}catch(e){}}
+
+/* ---------- rendering ---------- */
+function renderChrome(){
+  $('btnDig').textContent='الأرقام: '+(S.digits==='ar'?'٣ ٢ ١':'1 2 3');
+  $('selDec').value=String(S.dec);
+  $('btnExp').setAttribute('aria-pressed',String(S.explain));
+}
+function renderTabs(){
+  $('tabs').innerHTML=MODES.map(function(m){
+    return '<button class="tab" type="button" role="tab" data-m="'+m.id+'" aria-selected="'+(m.id===S.mode)+'">'+m.name+'</button>';
+  }).join('');
+  $('hint').textContent=mode().hint;
+}
+function numInput(id,val,extra){return '<input class="num" id="'+id+'" type="text" inputmode="decimal" autocomplete="off" dir="ltr" value="'+esc(val)+'"'+(extra||'')+'>';}
+function renderPanel(){
+  var m=mode(),v=vals(),h='';
+  m.f.forEach(function(fl){
+    var id='in_'+fl.k;
+    if(fl.sel){
+      h+='<div class="fld"><label for="'+id+'">'+fl.l+'</label><select class="sel" id="'+id+'">'+
+        fl.sel.map(function(o){return '<option value="'+o[0]+'"'+(v[fl.k]===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select></div>';
+    }else if(fl.pct){
+      var cur=parse(v[fl.k]),rg=isNaN(cur)?0:Math.min(100,Math.max(0,cur));
+      h+='<div class="fld"><label for="'+id+'">'+fl.l+'</label><div class="prow">'+
+        '<button class="step" type="button" data-k="'+fl.k+'" data-d="-1" aria-label="أنقص '+fl.l+' بمقدار واحد">−</button>'+
+        '<div class="inwrap">'+numInput(id,v[fl.k])+'<span class="unit">%</span></div>'+
+        '<button class="step" type="button" data-k="'+fl.k+'" data-d="1" aria-label="زد '+fl.l+' بمقدار واحد">+</button></div>'+
+        '<input type="range" id="rg_'+fl.k+'" min="0" max="100" step="1" value="'+rg+'" aria-label="تغيير '+fl.l+' بالسحب">'+
+        '<div class="chips">'+fl.chips.map(function(c){
+          return '<button class="pc" type="button" data-k="'+fl.k+'" data-v="'+c+'" aria-pressed="'+(parse(v[fl.k])===c)+'">'+fmt(c,0)+pcs()+'</button>';
+        }).join('')+'</div></div>';
+    }else{
+      h+='<div class="fld"><label for="'+id+'">'+fl.l+'</label>'+numInput(id,v[fl.k])+'</div>';
+    }
+  });
+  if(m.dist){
+    h+='<div class="fld"><span class="flbl">الأطراف ونسبها</span><div class="parties">';
+    v.parties.forEach(function(p,i){
+      h+='<div class="party"><input class="txt" id="pn_'+i+'" type="text" autocomplete="off" value="'+esc(p.name)+'" aria-label="اسم الطرف '+(i+1)+'" placeholder="الطرف '+(i+1)+'">'+
+        '<div class="inwrap">'+numInput('pp_'+i,p.p,' aria-label="نسبة الطرف '+(i+1)+'"')+'<span class="unit">%</span></div>'+
+        '<button class="rm" type="button" data-rm="'+i+'" aria-label="حذف الطرف '+(i+1)+'"'+(v.parties.length<2?' disabled':'')+'>×</button></div>';
+    });
+    h+='</div>'+(v.parties.length<10?'<button class="add" type="button" data-add="1">إضافة طرف</button>':'')+'</div>';
+  }
+  $('panel').innerHTML=h;
+}
+function barHTML(b){
+  if(b.type==='share'){
+    var w=Math.min(100,Math.max(0,b.pct));
+    return '<div class="bar"><div class="bh"><span>'+b.l+'</span><span>'+Pc(b.pct)+'</span></div><div class="track"><div class="fill" style="width:'+w+'%"></div></div></div>';
+  }
+  var mx=0,h='<div class="bar">';
+  b.items.forEach(function(i){mx=Math.max(mx,Math.abs(i.v));});
+  if(!mx)mx=1;
+  b.items.forEach(function(i){
+    var w=Math.min(100,Math.max(0,i.v/mx*100));
+    h+='<div class="crow"><span class="cl">'+i.l+'</span><div class="track"><div class="fill '+(i.tone||'')+'" style="width:'+w+'%"></div></div><span class="cv">'+i.t+'</span></div>';
+  });
+  return h+'</div>';
+}
+function renderResult(){
+  var el=$('result'),h;
+  if(!L){el.innerHTML='';return;}
+  if(L.err){el.innerHTML='<div class="rcard"><p class="rerr" role="alert">'+L.err+'</p></div>';return;}
+  h='<div class="rcard"><div class="mains">';
+  L.mains.forEach(function(m){h+='<div class="main '+(m.tone||'')+(m.txt?' txt':'')+'"><span class="ml">'+m.l+'</span><span class="mv">'+m.t+'</span></div>';});
+  h+='</div><p class="sent">'+L.sentence+'</p>';
+  if(S.explain&&L.bar)h+=barHTML(L.bar);
+  if(L.rows&&L.rows.length)h+='<dl class="rows">'+L.rows.map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd></div>';}).join('')+'</dl>';
+  if(S.explain&&L.steps&&L.steps.length){
+    h+='<div class="stepsbox"><h3>كيف حسبناها؟</h3><ol class="steps">'+L.steps.map(function(s,i){
+      return '<li><span class="sn">'+dz(i+1)+'</span><span class="st">'+s+'</span></li>';
+    }).join('')+'</ol></div>';
+  }
+  h+='<div class="acts"><button class="btn pri" type="button" data-a="copy">نسخ النتيجة</button><button class="btn" type="button" data-a="save">حفظ في السجل</button></div></div>';
+  el.innerHTML=h;
+}
+function renderHist(){
+  var h='<h2><span>السجل</span>'+(S.hist.length?'<button class="btn sm" type="button" data-a="clear">مسح السجل</button>':'')+'</h2>';
+  if(!S.hist.length)h+='<p class="none">اضغط «حفظ في السجل» لتحتفظ بالنتائج المهمة هنا.</p>';
+  else h+='<ul>'+S.hist.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul>';
+  $('hist').innerHTML=h;
+}
+function mark(inp,str,n){if(!inp)return;var wrong=isNaN(n)&&String(str).trim()!=='';inp.classList.toggle('bad',wrong);inp.setAttribute('aria-invalid',String(wrong));}
+function update(){
+  var m=mode(),v=vals(),x={},bad=false;
+  m.f.forEach(function(fl){
+    if(fl.sel){x[fl.k]=v[fl.k];return;}
+    var n=parse(v[fl.k]);x[fl.k]=n;if(isNaN(n))bad=true;mark($('in_'+fl.k),v[fl.k],n);
+  });
+  if(m.dist){
+    x.parties=v.parties.map(function(p,i){var n=parse(p.p);if(isNaN(n))bad=true;mark($('pp_'+i),p.p,n);return {name:p.name,p:n};});
+  }
+  L=bad?{err:'اكتب رقماً في كل خانة لتظهر النتيجة.'}:m.calc(x);
+  if(L&&!L.err){var tmp=document.createElement('div');tmp.innerHTML=L.sentence;L.copy=tmp.textContent.replace(/[⁦⁩]/g,'');}
+  renderResult();
+}
+function toast(t){
+  var el=$('toast');el.textContent=t;el.classList.add('on');
+  clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on');},1800);
+}
+function copyText(t){
+  function fallback(){
+    try{
+      var ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');ta.remove();
+      toast(ok?'تم نسخ النتيجة':'حدّد النص يدوياً وانسخه');
+    }catch(e){toast('حدّد النص يدوياً وانسخه');}
+  }
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast('تم نسخ النتيجة');},fallback);
+    else fallback();
+  }catch(e){fallback();}
+}
+function rerender(){renderChrome();renderTabs();renderPanel();update();renderHist();}
+
+/* ---------- events ---------- */
+function setVal(k,str){
+  vals()[k]=str;
+  var inp=$('in_'+k);if(inp&&inp.value!==str)inp.value=str;
+  var rg=$('rg_'+k);
+  if(rg){var n=parse(str);rg.value=isNaN(n)?0:Math.min(100,Math.max(0,n));}
+  Array.prototype.forEach.call(document.querySelectorAll('.pc[data-k="'+k+'"]'),function(b){b.setAttribute('aria-pressed',String(parse(str)===+b.dataset.v));});
+  update();save();
+}
+$('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab');if(!b||b.dataset.m===S.mode)return;
+  S.mode=b.dataset.m;save();renderTabs();renderPanel();update();
+});
+function onField(e){
+  var t=e.target,id=t.id||'',v=vals();
+  if(id.indexOf('in_')===0)setVal(id.slice(3),t.value);
+  else if(id.indexOf('rg_')===0)setVal(id.slice(3),String(t.value));
+  else if(id.indexOf('pn_')===0){v.parties[+id.slice(3)].name=t.value;update();save();}
+  else if(id.indexOf('pp_')===0){v.parties[+id.slice(3)].p=t.value;update();save();}
+}
+$('panel').addEventListener('input',onField);
+$('panel').addEventListener('change',onField);
+$('panel').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  var v=vals();
+  if(b.dataset.rm!==undefined){if(v.parties.length>1){v.parties.splice(+b.dataset.rm,1);renderPanel();update();save();}return;}
+  if(b.dataset.add){if(v.parties.length<10){v.parties.push({name:'',p:'0'});renderPanel();update();save();var el=$('pn_'+(v.parties.length-1));if(el)el.focus();}return;}
+  var k=b.dataset.k;if(!k)return;
+  if(b.dataset.d){var n=parse(v[k]);if(isNaN(n))n=0;n=Math.round((n+ +b.dataset.d)*1e6)/1e6;setVal(k,String(n));}
+  else if(b.dataset.v)setVal(k,b.dataset.v);
+});
+$('result').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b||!L||L.err)return;
+  if(b.dataset.a==='copy')copyText(L.copy);
+  else if(b.dataset.a==='save'){
+    S.hist=[L.sentence].concat(S.hist.filter(function(x){return x!==L.sentence;})).slice(0,10);
+    save();renderHist();toast('تم الحفظ في السجل');
+  }
+});
+$('hist').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b||b.dataset.a!=='clear')return;
+  S.hist=[];save();renderHist();
+});
+$('btnDig').addEventListener('click',function(){S.digits=S.digits==='ar'?'en':'ar';save();rerender();});
+$('selDec').addEventListener('change',function(){S.dec=+this.value;save();update();});
+$('btnExp').addEventListener('click',function(){S.explain=!S.explain;save();renderChrome();update();});
+
+load();rerender();
+})();
+</script>
+</body>
+</html>
